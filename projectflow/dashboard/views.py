@@ -13,7 +13,7 @@ def view_projects(request):
         ]
     }
 
-    return render(request, 'dashboard/projects.html')
+    return render(request, 'dashboard/frame.html')
 
 @login_required(login_url="login")
 def view_project_id(request):
@@ -34,3 +34,6 @@ def view_profile(request):
 
 def home(request):
     return render(request, 'base.html')
+
+def view_frame(request):
+    return render(request, 'dashboard/frame.html')
