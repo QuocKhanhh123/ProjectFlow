@@ -39,12 +39,16 @@ window.onclick = function(event) {
     }
 }
 function showContent(section) {
-    const sections = ['overview', 'projects', 'members', 'settings'];
+    const sections = ['overview', 'projects', 'members', 'settings', 'personal_details'];
     sections.forEach(s => {
-        document.getElementById(s + '-content').classList.remove('active');
-        document.querySelector('.sidebar-menu li[onclick*="' + s + '"]').classList.remove('active');
+        const el = document.getElementById(s + '-content');
+        if (el) el.classList.remove('active');
+        const li = document.querySelector('.sidebar-menu li[onclick*="' + s + '"]');
+        if (li) li.classList.remove('active');
     });
-    document.getElementById(section + '-content').classList.add('active');
-    document.querySelector('.sidebar-menu li[onclick*="' + section + '"]').classList.add('active');
+    const activeSection = document.getElementById(section + '-content');
+    if (activeSection) activeSection.classList.add('active');
+    const li = document.querySelector('.sidebar-menu li[onclick*="' + section + '"]');
+    if (li) li.classList.add('active');
 }
-showContent('projects');
+showContent('overview');

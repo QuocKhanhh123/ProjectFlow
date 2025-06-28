@@ -27,27 +27,29 @@
             </div>
             <div class="header-center">
                 <input type="text" class="search-bar" placeholder="Tìm kiếm dự án, công việc...">
-                <i class="fa-solid fa-magnifying-glass"></i> 
+                <button class="search-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
             </div>
             <div class="header-right">
                 <button class="user-btn" onclick="toggleUserMenu()"><i class="fa-solid fa-user"></i></button>
                 <div class="user-menu" id="user-menu">
-                    <a href="#">Chỉnh sửa thông tin</a>
+                    <button type="button" class="user-menu-link" onclick="showContent('personal_details')">Chỉnh sửa thông tin</button>
                     <a href="{% url 'logout' %}?next=/">Đăng xuất</a>
                 </div>
             </div>
         </div>
         <div class="content" id="content">
-            {% include 'dashboard/overview.html' %}
-            {% include 'dashboard/projects_content.html' %}
+            {% include 'dashboard/overview.html' %} 
+            {% include 'dashboard/projects_content.html' %} 
             {% include 'dashboard/members.html' %}
             {% include 'dashboard/settings.html' %}
+            {% include 'dashboard/personal_details.html' %}
         </div>
     </div>
     <link rel="stylesheet" href="/static/dashboard/overview.css">
     <link rel="stylesheet" href="/static/dashboard/projects_content.css">
     <link rel="stylesheet" href="/static/dashboard/members.css">
     <link rel="stylesheet" href="/static/dashboard/settings.css">
+    <link rel="stylesheet" href="/static/dashboard/personal_detail.css">
     <script src="/static/dashboard/frame.js"></script>
 </body>
 </html>

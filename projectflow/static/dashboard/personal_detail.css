@@ -1,0 +1,232 @@
+#personal-detail-content {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0;
+}
+.personal-header {
+    margin-bottom: 32px;
+}
+.personal-title-group h1 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+    color: #fff;
+}
+.personal-title-group p {
+    color: #b0b8d1;
+    font-size: 1.1rem;
+    margin: 0;
+}
+body.light-mode .personal-title-group h1 {
+    color: #232846;
+}
+body.light-mode .personal-title-group p {
+    color: #6b7280;
+}
+.personal-stats {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 32px;
+}
+.stat-card {
+    flex: 1;
+    background: transparent;
+    border: 1.5px solid #232846;
+    border-radius: 12px;
+    padding: 18px 14px 14px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 120px;
+    min-height: 80px;
+    transition: border 0.2s;
+}
+.stat-title {
+    font-size: 1rem;
+    color: #b0b8d1;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.stat-value {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #fff;
+}
+body.light-mode .stat-card {
+    border: 1.5px solid #e6eaff;
+    background: transparent;
+}
+body.light-mode .stat-title {
+    color: #232846;
+}
+body.light-mode .stat-value {
+    color: #232846;
+}
+.personal-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 32px;
+}
+.tab-btn {
+    background: #232846;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 24px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+.tab-btn.active, .tab-btn:hover {
+    background: #3b82f6;
+    color: #fff;
+}
+body.light-mode .tab-btn {
+    background: #e6eaff;
+    color: #232846;
+}
+body.light-mode .tab-btn.active, body.light-mode .tab-btn:hover {
+    background: #2563eb;
+    color: #fff;
+}
+.personal-info-card {
+    background: transparent;
+    border: 1.5px solid #232846;
+    border-radius: 12px;
+    padding: 28px 32px 32px 32px;
+    margin-bottom: 32px;
+}
+.personal-info-card h2 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 4px;
+}
+.personal-info-card p {
+    color: #b0b8d1;
+    font-size: 1rem;
+    margin-bottom: 24px;
+}
+body.light-mode .personal-info-card {
+    border: 1.5px solid #e6eaff;
+    background: transparent;
+}
+body.light-mode .personal-info-card h2 {
+    color: #232846;
+}
+body.light-mode .personal-info-card p {
+    color: #6b7280;
+}
+.personal-info-main {
+    display: flex;
+    gap: 32px;
+    align-items: flex-start;
+}
+.avatar-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 180px;
+    gap: 8px;
+}
+.avatar-img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: #e5e7eb;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    color: #b0b8d1;
+}
+.avatar-info {
+    text-align: center;
+}
+.avatar-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #fff;
+}
+.avatar-email {
+    color: #b0b8d1;
+    font-size: 0.98rem;
+}
+.avatar-role {
+    color: #3b82f6;
+    font-size: 0.98rem;
+    margin-bottom: 2px;
+}
+.avatar-last {
+    color: #6b7280;
+    font-size: 0.95rem;
+}
+body.light-mode .avatar-name {
+    color: #232846;
+}
+body.light-mode .avatar-email {
+    color: #6b7280;
+}
+body.light-mode .avatar-role {
+    color: #2563eb;
+}
+body.light-mode .avatar-last {
+    color: #6b7280;
+}
+.personal-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    flex: 1;
+}
+.personal-form label {
+    color: #b0b8d1;
+    font-size: 1rem;
+    margin-bottom: 2px;
+}
+.personal-form input {
+    background: #181c2f;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 16px;
+    color: #fff;
+    font-size: 1rem;
+    margin-bottom: 8px;
+    outline: none;
+    transition: background 0.2s;
+}
+.personal-form input:disabled {
+    color: #b0b8d1;
+}
+body.light-mode .personal-form input {
+    background: #f4f6fa;
+    color: #232846;
+}
+body.light-mode .personal-form input:disabled {
+    color: #6b7280;
+}
+.edit-btn {
+    background: #2563eb;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 24px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 8px;
+    align-self: flex-start;
+    transition: background 0.2s;
+}
+.edit-btn:hover {
+    background: #1d4ed8;
+}
+@media (max-width: 900px) {
+    .personal-stats { flex-direction: column; gap: 12px; }
+    .personal-info-main { flex-direction: column; gap: 20px; }
+    .personal-info-card { padding: 16px 8px; }
+}
