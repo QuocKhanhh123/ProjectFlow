@@ -1,0 +1,41 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng ký - TaskFlow</title>
+    <link rel="stylesheet" href="{% static 'auth/register.css' %}">
+</head>
+<body>
+    <div class="register-container">
+        <div class="register-form-wrapper">
+            <h1 class="register-title">Project Flow</h1>
+            <h2 class="register-subtitle">Tạo tài khoản mới</h2>
+            <form method="post" class="register-form">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="id_username">Họ tên</label>
+                    {{ form.username }}
+                </div>
+                <div class="form-group">
+                    <label for="id_email">Email</label>
+                    {{ form.email }}
+                </div>
+                <div class="form-group">
+                    <label for="id_password1">Mật khẩu</label>
+                    {{ form.password1 }}
+                </div>
+                <div class="form-group">
+                    <label for="id_password1">Nhập lại mật khẩu</label>
+                    {{ form.password2 }}
+                </div>
+                <button type="submit" class="register-btn">Đăng ký</button>
+            </form>
+            <div class="register-login-link">
+                Đã có tài khoản? <a href="{% url 'login' %}">Đăng nhập</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

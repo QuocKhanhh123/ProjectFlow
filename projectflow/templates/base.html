@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow - Quản lý dự án</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'base.css' %}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <nav>
+                <div class="logo">
+                    <a href="{% url 'home' %}">Project Flow</a>
+                </div>
+                <div class="nav-buttons">
+                    <a href="{% url 'login' %}" class="login-btn">Đăng nhập</a>
+                    <a href="{% url 'register' %}" class="register-btn">Đăng ký</a>
+                </div>
+            </nav>
+        </header>
+
+        <main>
+            {% if request.path == '/' %}
+            <section class="hero">
+                <h1>Quản lý dự án hiệu quả với Project Flow</h1>
+                <p class="subtitle">Nền tảng quản lý dự án hoàn hảo giúp mọi thành viên trong đội, phân công và hoàn thành công việc một cách hiệu quả.</p>
+                <div class="cta-buttons">
+                    <a href="{% url 'register' %}" class="cta-primary">Bắt đầu ngay →</a>
+                    <a href="{% url 'login' %}" class="cta-secondary">Đăng nhập</a>
+                </div>
+            </section>
+
+            <section class="features">
+                <div class="feature-card">
+                    <div class="feature-icon">📋</div>
+                    <h3>Quản lý dự án</h3>
+                    <p>Tạo và quản lý nhiều dự án cùng lúc với giao diện trực quan.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>Theo dõi công việc</h3>
+                    <p>Tạo, phân công và cập nhật trạng thái công việc dễ dàng.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💬</div>
+                    <h3>Cộng tác hiệu quả</h3>
+                    <p>Bình luận và trao đổi trực tiếp trên từng công việc.</p>
+                </div>
+            </section>
+            {% endif %}
+
+            {% block content %}
+            {% endblock %}
+        </main>
+
+        <footer>
+            <p>© 2025 Project Flow. All rights reserved.</p>
+        </footer>
+    </div>
+</body>
+</html>
