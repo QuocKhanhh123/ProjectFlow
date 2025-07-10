@@ -1,0 +1,40 @@
+<!-- overview.html -->
+<div id="overview-content" class="content-section active">
+    <h1>Dự án</h1>
+    <p>Quản lý tất cả các dự án của bạn.</p>
+    <div class="project-empty">
+        <h2>Chưa có dự án nào</h2>
+        <p>Tạo dự án đầu tiên của bạn để bắt đầu.</p>
+        <button class="create-btn" onclick="openModal()">+ Tạo dự án</button>
+    </div>
+</div>
+
+<!-- Modal overlay + form -->
+<div id="modal-overlay" class="modal-overlay hidden">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+        <h2>Tạo dự án mới</h2>
+        <p>Điền thông tin để tạo dự án mới.</p>
+        <form>
+            <label for="project-name">Tên dự án</label>
+            <input type="text" id="project-name" placeholder="Nhập tên dự án">
+
+            <label for="description">Mô tả</label>
+            <textarea id="description" placeholder="Mô tả ngắn về dự án"></textarea>
+
+            <button type="submit" class="submit-btn">Tạo dự án</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openModal() {
+        document.getElementById('modal-overlay').classList.remove('hidden');
+    }
+
+    function closeModal() {
+        document.getElementById('modal-overlay').classList.add('hidden');
+    }
+</script>
+
+    

@@ -1,0 +1,73 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng ký - TaskFlow</title>
+    <link rel="stylesheet" href="{% static 'auth/register.css' %}">
+</head>
+<body>
+    <div class="register-container">
+        <div class="register-form-wrapper">
+            <h1 class="register-title">Project Flow</h1>
+            <h2 class="register-subtitle">Tạo tài khoản mới</h2>
+            <form method="post" class="register-form">
+                {% csrf_token %}
+                
+                <!-- Hiển thị lỗi chung của form -->
+                {% if form.non_field_errors %}
+                    <div class="form-errors">
+                        {{ form.non_field_errors }}
+                    </div>
+                {% endif %}
+                
+                <div class="form-group">
+                    <label for="id_username">Họ tên</label>
+                    {{ form.username }}
+                    {% if form.username.errors %}
+                        <div class="field-errors">
+                            {{ form.username.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label for="id_email">Email</label>
+                    {{ form.email }}
+                    {% if form.email.errors %}
+                        <div class="field-errors">
+                            {{ form.email.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label for="id_password1">Mật khẩu</label>
+                    {{ form.password1 }}
+                    {% if form.password1.errors %}
+                        <div class="field-errors">
+                            {{ form.password1.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group">
+                    <label for="id_password2">Nhập lại mật khẩu</label>
+                    {{ form.password2 }}
+                    {% if form.password2.errors %}
+                        <div class="field-errors">
+                            {{ form.password2.errors }}
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <button type="submit" class="register-btn">Đăng ký</button>
+            </form>
+            <div class="register-login-link">
+                Đã có tài khoản? <a href="{% url 'login' %}">Đăng nhập</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

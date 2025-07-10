@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chi tiết công việc</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 40px;
+      background-color: #0f172a;
+      color: #fff;
+      font-family: Arial, sans-serif;
+    }
+
+    a {
+      text-decoration: none;
+      color: #60a5fa;
+      display: inline-block;
+      margin-bottom: 20px;
+    }
+
+    .task-card, .comment-box {
+      background-color: #1e293b;
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 20px;
+      border: 1px solid #334155;
+    }
+
+    .task-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+    }
+
+    .task-title {
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    .badges {
+      margin-bottom: 12px;
+    }
+
+    .badge {
+      display: inline-block;
+      background-color: #2563eb;
+      color: #fff;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 13px;
+      margin-right: 6px;
+    }
+
+    .description {
+      margin: 12px 0;
+      color: #e2e8f0;
+    }
+
+    .executor {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      color: #e2e8f0;
+    }
+
+    .executor span.avatar {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background-color: #cbd5e1;
+    }
+
+    .time {
+      color: #94a3b8;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-delete {
+      background-color: #b91c1c;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+
+    .comment-box h3 {
+      font-size: 18px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .no-comments {
+      color: #94a3b8;
+      margin-bottom: 16px;
+    }
+
+    .comment-form {
+      display: flex;
+      gap: 8px;
+    }
+
+    .comment-form input {
+      flex: 1;
+      padding: 10px;
+      border-radius: 6px;
+      border: none;
+      background-color: #0f172a;
+      color: white;
+      border: 1px solid #334155;
+    }
+
+    .comment-form button {
+      padding: 10px 16px;
+      background-color: #2563eb;
+      border: none;
+      border-radius: 6px;
+      color: white;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <a href="#">← Quay lại dự án</a>
+
+  <div class="task-card">
+    <div class="task-header">
+      <div>
+        <div class="task-title">abc</div>
+        <div class="badges">
+          <span class="badge">Đang thực hiện</span>
+          <span class="badge">Ưu tiên trung bình</span>
+        </div>
+        <div class="description">Mô tả<br>aaaaa</div>
+        <div class="executor">
+          Người thực hiện: <span class="avatar"></span>
+        </div>
+        <div class="time">🕒 Tạo lúc: 19:44:00 10/7/2025</div>
+      </div>
+      <button class="btn-delete">🗑️</button>
+    </div>
+  </div>
+
+  <div class="comment-box">
+    <h3>💬 Bình luận (0)</h3>
+    <p class="no-comments">Chưa có bình luận nào.</p>
+    <form class="comment-form">
+      <input type="text" placeholder="Thêm bình luận...">
+      <button type="submit">Gửi</button>
+    </form>
+  </div>
+
+</body>
+</html>

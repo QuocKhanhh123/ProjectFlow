@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>Chi tiết dự án</title>
+  <style>
+    body {
+      background-color: #0f172a;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      padding: 40px;
+      margin: 0;
+    }
+
+    h1 {
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+
+    .project-desc {
+      color: #cbd5e1;
+      margin-bottom: 20px;
+    }
+
+    .project-actions {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .btn {
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      font-weight: 500;
+    }
+
+    .btn-edit {
+      background-color: transparent;
+      border: 1px solid #334155;
+      color: white;
+    }
+
+    .btn-delete {
+      background-color: #b91c1c;
+      color: white;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 20px;
+      border-bottom: 1px solid #334155;
+      margin-top: 20px;
+    }
+
+    .tab {
+      padding: 10px;
+      cursor: pointer;
+      color: #94a3b8;
+    }
+
+    .tab.active {
+      border-bottom: 2px solid #3b82f6;
+      color: #fff;
+    }
+
+    .tab-content {
+      margin-top: 20px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    /* Thành viên */
+    .member-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .member-search {
+      margin-top: 16px;
+      margin-bottom: 16px;
+      padding: 10px;
+      width: 300px;
+      border-radius: 6px;
+      border: 1px solid #334155;
+      background-color: #0f172a;
+      color: white;
+    }
+
+    .btn-add-member {
+      background-color: #3b82f6;
+      color: white;
+      padding: 10px 12px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .member-list {
+      background-color: #1e293b;
+      border-radius: 8px;
+      padding: 16px;
+      margin-top: 10px;
+    }
+
+    .member-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 0;
+    }
+
+    .avatar {
+      width: 40px;
+      height: 40px;
+      background-color: #cbd5e1;
+      border-radius: 50%;
+    }
+
+    .member-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .role-badge {
+      background-color: #2563eb;
+      color: white;
+      padding: 2px 8px;
+      font-size: 12px;
+      border-radius: 999px;
+      margin-left: 6px;
+    }
+
+    .email {
+      font-size: 14px;
+      color: #94a3b8;
+    }
+
+    .joined-date {
+      font-size: 14px;
+      color: #94a3b8;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>abc</h1>
+  <div class="project-desc">abcakc</div>
+
+  <div class="project-actions">
+    <button class="btn btn-edit">✏️ Chỉnh sửa dự án</button>
+    <button class="btn btn-delete">🗑️</button>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="showTab('tasks')">Công việc</div>
+    <div class="tab" onclick="showTab('members')">Thành viên</div>
+  </div>
+
+  <div class="tab-content" id="tasks-tab">
+    <p>👉 Đây là phần hiển thị công việc (tạm thời demo)</p>
+  </div>
+
+  <div class="tab-content hidden" id="members-tab">
+    <div class="member-header">
+      <input class="member-search" placeholder="Tìm kiếm thành viên...">
+      <button class="btn-add-member">👤+ Thêm thành viên</button>
+    </div>
+
+    <div class="member-list">
+      <h3>Thành viên dự án (1)</h3>
+      <div class="member-item">
+        <div class="avatar"></div>
+        <div class="member-info">
+          <div><strong>Darius</strong> <span class="role-badge">Chủ sở hữu</span></div>
+          <div class="email">phankhanh@gmail.com</div>
+          <div class="joined-date">Tham gia: 10/7/2025</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function showTab(tab) {
+      const taskTab = document.getElementById('tasks-tab');
+      const memberTab = document.getElementById('members-tab');
+      const tabs = document.querySelectorAll('.tab');
+
+      tabs.forEach(t => t.classList.remove('active'));
+
+      if (tab === 'tasks') {
+        taskTab.classList.remove('hidden');
+        memberTab.classList.add('hidden');
+        tabs[0].classList.add('active');
+      } else {
+        taskTab.classList.add('hidden');
+        memberTab.classList.remove('hidden');
+        tabs[1].classList.add('active');
+      }
+    }
+  </script>
+
+</body>
+</html>

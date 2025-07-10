@@ -1,0 +1,172 @@
+#members-content {
+    max-width: 1300px;
+    margin: 40px auto;
+    color: #fff;
+}
+#members-content .members-title {
+    font-size: 2.5rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+#members-content .members-desc {
+    color: #b0b8d1;
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+}
+#members-content .members-stats {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 32px;
+}
+#members-content .stat-card {
+    flex: 1;
+    background: #181c2f;
+    border-radius: 12px;
+    padding: 24px 28px 18px 28px;
+    border: 1px solid #232846;
+    min-width: 220px;
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+#members-content .stat-label {
+    font-size: 1.1rem;
+    font-weight: 500;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+#members-content .stat-value {
+    font-size: 2.1rem;
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+#members-content .stat-desc {
+    color: #b0b8d1;
+    font-size: 1rem;
+}
+#members-content .members-tabs {
+    margin-bottom: 18px;
+}
+#members-content .tab-btn {
+    background: #232846;
+    color: #fff;
+    border: 2px solid #3b82f6;
+    border-radius: 8px;
+    padding: 8px 28px;
+    font-size: 1.1rem;
+    font-weight: 500;
+    cursor: pointer;
+    margin-right: 8px;
+    transition: background 0.2s, color 0.2s;
+}
+#members-content .tab-btn.active, #members-content .tab-btn:hover {
+    background: #3b82f6;
+    color: #fff;
+}
+
+#members-content .members-search {
+    margin-bottom: 18px;
+}
+#members-content .members-search input {
+    width: 450px;
+    padding: 12px 18px;
+    border-radius: 8px;
+    border: none;
+    background: #232846;
+    color: #fff;
+    font-size: 1rem;
+    outline: none;
+    transition: background 0.2s;
+}
+#members-content .members-list {
+    background: #181c2f;
+    border-radius: 12px;
+    padding: 32px 28px;
+    border: 1px solid #232846;
+    margin-top: 12px;
+    min-height: 180px;
+}
+#members-content .members-list-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 32px;
+}
+#members-content .members-list-empty {
+    color: #b0b8d1;
+    font-size: 1.2rem;
+    text-align: center;
+    margin-top: 40px;
+}
+body.light-mode #members-content {
+    background: transparent;
+    color: #232846;
+}
+body.light-mode #members-content h1,
+body.light-mode #members-content h2,
+body.light-mode #members-content h3 {
+    color: #232846;
+}
+body.light-mode #members-content p,
+body.light-mode #members-content .member-role,
+body.light-mode #members-content .member-email {
+    color: #6b7280;
+}
+body.light-mode #members-content .member-card {
+    background: #fff;
+    border: 1.5px solid #e6eaff;
+    color: #232846;
+}
+body.light-mode #members-content .member-card .member-name {
+    color: #232846;
+}
+body.light-mode #members-content .member-card .member-role {
+    color: #2563eb;
+}
+body.light-mode #members-content .member-card .member-email {
+    color: #6b7280;
+}
+body.light-mode #members-content .member-card .member-action-btn {
+    background: #2563eb;
+    color: #fff;
+}
+body.light-mode #members-content .member-card .member-action-btn:hover {
+    background: #1d4ed8;
+}
+body.light-mode #members-content .stat-card,
+body.light-mode #members-content .members-list,
+body.light-mode #members-content .member-card {
+    background: #fff;
+    border: 1.5px solid #e6eaff;
+    color: #232846;
+}
+body.light-mode #members-content .stat-label,
+body.light-mode #members-content .members-list-title {
+    color: #232846;
+}
+body.light-mode #members-content .stat-desc,
+body.light-mode #members-content .members-list-empty {
+    color: #6b7280;
+}
+body.light-mode #members-content .tab-btn {
+    background: #e6eaff;
+    color: #232846;
+    border: 2px solid #2563eb;
+}
+body.light-mode #members-content .tab-btn.active,
+body.light-mode #members-content .tab-btn:hover {
+    background: #2563eb;
+    color: #fff;
+}
+body.light-mode #members-content input,
+body.light-mode #members-content select {
+    background: #f4f6fa;
+    color: #232846;
+    border: 1.5px solid #e6eaff;
+}
+@media (max-width: 900px) {
+    #members-content .members-stats { flex-direction: column; gap: 12px; }
+    #members-content .members-search input { width: 100%; }
+}

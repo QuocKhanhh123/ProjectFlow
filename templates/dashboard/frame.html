@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow - Dự án</title>
+    <link rel="stylesheet" href="/static/dashboard/frame.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+</head>
+<body class="dark-mode">
+    <div class="sidebar">
+        <div class="sidebar-title">Project Flow</div>
+        <ul class="sidebar-menu">
+            <li class="active" onclick="showContent('overview')"><span>📋</span> Tổng quan</li>
+            <li onclick="showContent('projects')"><span>📁</span> Dự án</li>
+            <li onclick="showContent('members')"><span>👥</span> Thành viên</li>
+            <li onclick="showContent('settings')"><span>⚙️</span> Cài đặt</li>
+        </ul>
+    </div>
+    <div class="main">
+        <div class="header">
+            <div class="header-left">
+                <button class="toggle-mode" onclick="toggleMode()">
+                    <span id="mode-icon">🌙</span>
+                </button>
+            </div>
+            <div class="header-center">
+                <input type="text" class="search-bar" placeholder="Tìm kiếm dự án, công việc...">
+                <button class="search-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
+            </div>
+            <div class="header-right">
+                <button class="user-btn" onclick="toggleUserMenu()"><i class="fa-solid fa-user"></i></button>
+                <div class="user-menu" id="user-menu">
+                    <button type="button" class="user-menu-link" onclick="showContent('personal_details')">Chỉnh sửa thông tin</button>
+                    <a href="{% url 'logout' %}?next=/">Đăng xuất</a>
+                </div>
+            </div>
+        </div>
+        <div class="content" id="content">
+            {% include 'dashboard/overview.html' %} 
+            {% include 'dashboard/projects_content.html' %} 
+            {% include 'dashboard/members.html' %}
+            {% include 'dashboard/settings.html' %}
+            {% include 'dashboard/personal_details.html' %}
+        </div>
+    </div>
+    <link rel="stylesheet" href="/static/dashboard/overview.css">
+    <link rel="stylesheet" href="/static/dashboard/projects_content.css">
+    <link rel="stylesheet" href="/static/dashboard/members.css">
+    <link rel="stylesheet" href="/static/dashboard/settings.css">
+    <link rel="stylesheet" href="/static/dashboard/personal_detail.css">
+    <script src="/static/dashboard/frame.js"></script>
+</body>
+</html>

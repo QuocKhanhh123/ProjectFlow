@@ -1,0 +1,67 @@
+{% comment %} settings.html chỉ chứa phần nội dung, không có thẻ <html>, <head>, <body> {% endcomment %}
+<div id="settings-content" class="content-section">
+    <div class="settings-container">
+        <h1 class="settings-title">Cài đặt</h1>
+        <p class="settings-desc">Quản lý cài đặt tài khoản và ứng dụng.</p>
+        <div class="settings-section">
+            <h2>Thông báo</h2>
+            <p class="section-desc">Cấu hình cài đặt thông báo của bạn.</p>
+            <div class="setting-row">
+                <div>
+                    <div class="setting-label">Thông báo qua email</div>
+                    <div class="setting-desc">Nhận thông báo qua email khi có cập nhật mới.</div>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="setting-row">
+                <div>
+                    <div class="setting-label">Thông báo đẩy</div>
+                    <div class="setting-desc">Nhận thông báo đẩy trên trình duyệt khi có cập nhật mới.</div>
+                </div>
+                <label class="switch">
+                    <input type="checkbox">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="setting-row">
+                <div>
+                    <div class="setting-label">Nhắc nhở công việc</div>
+                    <div class="setting-desc">Nhận thông báo nhắc nhở về công việc sắp đến hạn.</div>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <button class="save-btn">Lưu thay đổi</button>
+        </div>
+        <div class="settings-section">
+            <h2>Hiển thị</h2>
+            <p class="section-desc">Tuỳ chỉnh giao diện người dùng.</p>
+            <div class="setting-row">
+                <div>
+                    <div class="setting-label">Chế độ xem gọn</div>
+                    <div class="setting-desc">Hiển thị nhiều nội dung hơn trên mỗi trang.</div>
+                </div>
+                <label class="switch">
+                    <input type="checkbox">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="setting-row">
+                <div>
+                    <div class="setting-label">Hiệu ứng chuyển động</div>
+                    <div class="setting-desc">Bật hiệu ứng chuyển động trong giao diện.</div>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <button class="save-btn">Lưu thay đổi</button>
+        </div>
+    </div>
+</div>
