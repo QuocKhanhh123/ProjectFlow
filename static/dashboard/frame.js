@@ -38,17 +38,4 @@ window.onclick = function(event) {
         }
     }
 }
-function showContent(section) {
-    const sections = ['overview', 'projects', 'members', 'settings', 'personal_details'];
-    sections.forEach(s => {
-        const el = document.getElementById(s + '-content');
-        if (el) el.classList.remove('active');
-        const li = document.querySelector('.sidebar-menu li[onclick*="' + s + '"]');
-        if (li) li.classList.remove('active');
-    });
-    const activeSection = document.getElementById(section + '-content');
-    if (activeSection) activeSection.classList.add('active');
-    const li = document.querySelector('.sidebar-menu li[onclick*="' + section + '"]');
-    if (li) li.classList.add('active');
-}
-showContent('overview');
+

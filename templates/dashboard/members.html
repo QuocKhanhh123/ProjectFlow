@@ -1,5 +1,13 @@
-<div id="members-content" class="content-section">
-    <div class="members-container">
+{% extends "dashboard/base.html" %}
+
+{% block include_header %}
+<link rel="stylesheet" href="/static/dashboard/members.css">
+{% endblock%}
+
+
+{% block container %}
+    
+    <div id="members-content">
         <h1 class="members-title">Quản lý thành viên</h1>
         <p class="members-desc">Xem và quản lý thành viên trong nhóm của bạn.</p>
         <div class="members-stats">
@@ -35,4 +43,6 @@
             <div class="members-list-empty">Không tìm thấy thành viên nào.</div>
         </div>
     </div>
-</div>
+
+{% endblock %}
+

@@ -1,39 +1,259 @@
+{% extends "dashboard/base.html"%}
+
+{% block include_header %}
+<link rel="stylesheet" href="/static/dashboard/projects_content.css">
+{% endblock%}
+
+{% block container %}
 <div id="projects-content" class="content-section">
     <div class="projects-header">
         <div class="projects-title-group">
             <h1>Quản lý dự án</h1>
             <p>Xem và quản lý tất cả các dự án của bạn.</p>
         </div>
-        <button class="create-btn"><i class="fa-solid fa-plus"></i> Tạo dự án</button>
+        <a href="{% url 'create_project' %}" class="create-btn">
+            <i class="fa-solid fa-plus"></i> Tạo dự án
+        </a>
     </div>
+    
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+    
     <div class="projects-stats">
         <div class="stat-card">
             <div class="stat-title">Tổng số dự án</div>
-            <div class="stat-value">0</div>
-            <div class="stat-desc">Tổng số dự án bạn đang tham gia</div>
+            <div class="stat-value">{{ total_projects }}</div>
+            <div class="stat-desc">Tổng số dự án bạn đang sở hữu</div>
         </div>
         <div class="stat-card">
             <div class="stat-title">Đang hoạt động <i class="fa-regular fa-clock"></i></div>
-            <div class="stat-value">0</div>
+            <div class="stat-value">{{ active_projects }}</div>
             <div class="stat-desc">Dự án đang được triển khai</div>
         </div>
         <div class="stat-card">
             <div class="stat-title">Hoàn thành <i class="fa-solid fa-check"></i></div>
-            <div class="stat-value">0</div>
+            <div class="stat-value">{{ completed_projects }}</div>
             <div class="stat-desc">Dự án đã hoàn thành</div>
         </div>
         <div class="stat-card">
             <div class="stat-title">Tạm dừng <i class="fa-regular fa-circle-info"></i></div>
-            <div class="stat-value">0</div>
+            <div class="stat-value">{{ on_hold_projects }}</div>
             <div class="stat-desc">Dự án đang tạm dừng</div>
         </div>
     </div>
+    
     <div class="projects-tabs">
         <button class="tab-btn active">Đang hoạt động</button>
         <button class="tab-btn">Đã lưu trữ</button>
     </div>
-    <div class="project-empty">
-        <h2>Chưa có dự án nào</h2>
-        <p>Tạo dự án đầu tiên của bạn để bắt đầu.</p>
-    </div>
+    
+    {% if projects %}
+        <div class="projects-grid">
+            {% for project in projects %}
+                <div class="project-card">
+                    <div class="project-header">
+                        <h3 class="project-name">{{ project.name }}</h3>
+                        <div class="project-actions">
+                            <a href="{% url 'edit_project' project.id %}" class="action-btn edit-btn" title="Chỉnh sửa">
+                                <i class="fa-solid fa-edit"></i>
+                            </a>
+                            <a href="{% url 'delete_project' project.id %}" class="action-btn delete-btn" title="Xóa">
+                                <i class="fa-solid fa-trash"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <p class="project-description">{{ project.description|truncatechars:100 }}</p>
+                    <div class="project-meta">
+                        <span class="project-status status-{{ project.status|lower }}">
+                            {% if project.status == 'ACTIVE' %}
+                                <i class="fa-solid fa-circle"></i> Đang hoạt động
+                            {% elif project.status == 'COMPLETED' %}
+                                <i class="fa-solid fa-check-circle"></i> Hoàn thành
+                            {% elif project.status == 'ON_HOLD' %}
+                                <i class="fa-solid fa-pause-circle"></i> Tạm dừng
+                            {% endif %}
+                        </span>
+                        <span class="project-date">{{ project.created_at|date:"d/m/Y" }}</span>
+                    </div>
+                    <div class="project-footer">
+                        <a href="{% url 'view_project_detail' project.id %}" class="view-project-btn">
+                            Xem chi tiết <i class="fa-solid fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="project-empty">
+            <h2>Chưa có dự án nào</h2>
+            <p>Tạo dự án đầu tiên của bạn để bắt đầu.</p>
+            <a href="{% url 'create_project' %}" class="create-first-btn">
+                <i class="fa-solid fa-plus"></i> Tạo dự án đầu tiên
+            </a>
+        </div>
+    {% endif %}
 </div>
+
+<style>
+.alert {
+    padding: 1rem;
+    margin: 1rem 0;
+    border-radius: 8px;
+    border: 1px solid transparent;
+}
+
+.alert-success {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+
+.alert-error {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+
+.projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.project-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.project-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+}
+
+.project-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.project-name {
+    color: #2c3e50;
+    margin: 0;
+    font-size: 1.25rem;
+    flex: 1;
+}
+
+.project-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.action-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.edit-btn {
+    background: #3498db;
+    color: white;
+}
+
+.edit-btn:hover {
+    background: #2980b9;
+}
+
+.delete-btn {
+    background: #e74c3c;
+    color: white;
+}
+
+.delete-btn:hover {
+    background: #c0392b;
+}
+
+.project-description {
+    color: #7f8c8d;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+}
+
+.project-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.project-status {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.status-active {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-completed {
+    background: #d1ecf1;
+    color: #0c5460;
+}
+
+.status-on_hold {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.project-date {
+    color: #95a5a6;
+    font-size: 0.875rem;
+}
+
+.project-footer {
+    text-align: right;
+}
+
+.view-project-btn {
+    color: #3498db;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.view-project-btn:hover {
+    color: #2980b9;
+}
+
+.create-first-btn {
+    display: inline-block;
+    background: #3498db;
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    text-decoration: none;
+    margin-top: 1rem;
+    transition: background 0.3s ease;
+}
+
+.create-first-btn:hover {
+    background: #2980b9;
+}
+</style>
+{% endblock %}
+

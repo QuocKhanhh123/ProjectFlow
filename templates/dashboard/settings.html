@@ -1,4 +1,10 @@
-{% comment %} settings.html chỉ chứa phần nội dung, không có thẻ <html>, <head>, <body> {% endcomment %}
+{% extends "dashboard/base.html"%}
+
+{% block include_header %}
+<link rel="stylesheet" href="/static/dashboard/settings.css">
+{% endblock%}
+
+{% block container %}
 <div id="settings-content" class="content-section">
     <div class="settings-container">
         <h1 class="settings-title">Cài đặt</h1>
@@ -65,3 +71,4 @@
         </div>
     </div>
 </div>
+{% endblock %}

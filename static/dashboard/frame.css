@@ -56,6 +56,21 @@ body.light-mode {
     color: #fff;
     border-left: 4px solid #3b82f6;
 }
+.sidebar-menu li a {
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+}
+.sidebar-menu li a:hover,
+.sidebar-menu li a:focus,
+.sidebar-menu li a:active,
+.sidebar-menu li a:visited {
+    text-decoration: none;
+    color: inherit;
+}
 body.light-mode .sidebar {
     background: #fff;
     color: #232846;
@@ -70,6 +85,17 @@ body.light-mode .sidebar-menu li.active, body.light-mode .sidebar-menu li:hover 
     background: #e6eaff;
     color: #2563eb;
     border-left: 4px solid #2563eb;
+}
+body.light-mode .sidebar-menu li a {
+    text-decoration: none;
+    color: inherit;
+}
+body.light-mode .sidebar-menu li a:hover,
+body.light-mode .sidebar-menu li a:focus,
+body.light-mode .sidebar-menu li a:active,
+body.light-mode .sidebar-menu li a:visited {
+    text-decoration: none;
+    color: inherit;
 }
 .main {
     margin-left: 240px;
@@ -289,9 +315,7 @@ body.light-mode .user-menu-link:hover {
 body.light-mode .content {
     background: #f4f6fa;
 }
-.content-section {
-    display: none;
-}
+
 .content-section.active {
     display: block;
 }

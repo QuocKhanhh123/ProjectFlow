@@ -1,3 +1,10 @@
+{% extends "dashboard/base.html" %}
+
+{% block include_header %}
+<link rel="stylesheet" href="/static/dashboard/overview.css">
+{% endblock%}
+
+{% block container %}
 <!-- overview.html -->
 <div id="overview-content" class="content-section active">
     <h1>Dự án</h1>
@@ -37,4 +44,5 @@
     }
 </script>
 
-    
+{% endblock %}
+
