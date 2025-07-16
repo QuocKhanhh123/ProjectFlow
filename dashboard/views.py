@@ -181,10 +181,8 @@ def view_overview(request):
 def view_projects(request):
     user = request.user
     
-    # Get projects owned by user
     owned_projects = Project.objects.filter(owner=user)
     
-    # Get projects where user is a member (including owned projects)
     member_projects = ProjectMember.objects.filter(user=user).select_related('project')
     
     # Combine all projects and remove duplicates
@@ -326,6 +324,7 @@ def view_project_detail(request, project_id):
     in_progress_count = tasks.filter(status='IN_PROGRESS').count()
     done_count = tasks.filter(status='DONE').count()
     
+    members = project.members.select_related('user').all()
     context = {
         'project': project,
         'tasks': tasks,
@@ -333,9 +332,9 @@ def view_project_detail(request, project_id):
         'in_progress_count': in_progress_count,
         'done_count': done_count,
         'user_role': user_member.role,
-        'can_edit': user_member.role in [MemberRole.OWNER, MemberRole.ADMIN]
+        'can_edit': user_member.role in [MemberRole.OWNER, MemberRole.ADMIN],
+        'members': members,
     }
-    print(context)  # Debugging line to check context
     return render(request, 'dashboard/project_detail.html', context)
 
 @login_required(login_url="login")

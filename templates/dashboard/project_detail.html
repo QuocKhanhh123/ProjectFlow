@@ -8,18 +8,20 @@
 <div class="project-detail-container">
   <div class="project-header">
     <div class="project-info">
-      <h1 class="project-title">abc</h1>
-      <div class="project-desc">abcakc</div>
+      <h1 class="project-title">{{ project.name }}</h1>
+      <div class="project-desc">{{ project.description }}</div>
     </div>
     <div class="project-actions">
-      <button class="btn btn-edit">✏️ Chỉnh sửa dự án</button>
-      <button class="btn btn-delete">🗑️</button>
+      {% if can_edit %}
+        <button class="btn btn-edit">✏️ Chỉnh sửa dự án</button>
+        <button class="btn btn-delete">🗑️</button>
+      {% endif %}
     </div>
   </div>
 
   <div class="tabs">
     <div class="tab active" onclick="showTab('tasks')">Công việc</div>
-    <div class="tab" onclick="window.location.href='/dashboard/projects/{{ project.id }}/members/'">Thành viên</div>
+    <div class="tab" onclick="showTab('members')">Thành viên</div>
   </div>
 
   <div class="tab-content" id="tasks-tab">
@@ -141,19 +143,30 @@
   <div class="tab-content hidden" id="members-tab">
     <div class="member-header">
       <input class="member-search" placeholder="Tìm kiếm thành viên...">
-      <button class="btn-add-member">👤+ Thêm thành viên</button>
+      {% if can_edit %}
+        <button class="btn-add-member">👤+ Thêm thành viên</button>
+      {% endif %}
     </div>
 
     <div class="member-list">
-      <h3>Thành viên dự án (1)</h3>
-      <div class="member-item">
-        <div class="avatar"></div>
-        <div class="member-info">
-          <div><strong>Darius</strong> <span class="role-badge">Chủ sở hữu</span></div>
-          <div class="email">phankhanh@gmail.com</div>
-          <div class="joined-date">Tham gia: 10/7/2025</div>
+      <h3>Thành viên dự án ({{ members|length }})</h3>
+      {% for member in members %}
+        <div class="member-item">
+          <div class="avatar"></div>
+          <div class="member-info">
+            <div>
+              <strong>{{ member.user.username }}</strong>
+              <span class="role-badge">
+                {% if member.role == 'OWNER' %}Chủ sở hữu{% elif member.role == 'ADMIN' %}Quản trị viên{% else %}Thành viên{% endif %}
+              </span>
+            </div>
+            <div class="email">{{ member.user.email }}</div>
+            <div class="joined-date">Tham gia: {{ member.joined_at|date:"d/m/Y" }}</div>
+          </div>
         </div>
-      </div>
+      {% empty %}
+        <div class="no-members">Không có thành viên nào</div>
+      {% endfor %}
     </div>
   </div>
   
@@ -221,7 +234,7 @@
         taskTab.classList.remove('hidden');
         memberTab.classList.add('hidden');
         tabs[0].classList.add('active');
-      } else {
+      } else if (tab === 'members') {
         taskTab.classList.add('hidden');
         memberTab.classList.remove('hidden');
         tabs[1].classList.add('active');
