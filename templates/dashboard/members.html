@@ -20,18 +20,6 @@
         </div>
     </div>
 
-    <!-- Debug Information -->
-    <div style="background: #f8f9fa; padding: 10px; margin: 10px 0; border-radius: 5px;">
-        <h4>Debug Info:</h4>
-        <p>Total members: {{ total_members }}</p>
-        <p>Members count: {{ members|length }}</p>
-        <p>Member stats count: {{ member_stats|length }}</p>
-        <p>User role: {{ user_role }}</p>
-        <p>Project ID: {{ project.id }}</p>
-        <p>Project Owner: {{ project.owner.username }}</p>
-        <p>Current User: {{ request.user.username }}</p>
-    </div>
-
     <!-- Statistics Cards -->
     <div class="stats-grid">
         <div class="stat-card">
@@ -115,15 +103,6 @@
 
     <!-- Members Grid -->
     <div class="members-grid" id="membersGrid">
-        <div style="background: #ffebee; padding: 10px; margin: 10px 0; border-radius: 5px; color: #c62828;">
-            <h4>Debug Members Loop:</h4>
-            <p>Starting loop for member_stats...</p>
-            {% for stat in member_stats %}
-                <p>Processing member: {{ stat.member.user.username }}</p>
-            {% empty %}
-                <p>No member_stats found!</p>
-            {% endfor %}
-        </div>
         
         {% for stat in member_stats %}
         {% with member=stat.member %}

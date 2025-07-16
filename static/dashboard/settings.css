@@ -2,72 +2,88 @@
     max-width: 900px;
     margin: 40px auto;
     background: transparent;
-    color: #fff;
+    color: #ffffff;
 }
+
 #settings-content .settings-title {
     font-size: 2.5rem;
-    font-weight: bold;
+    font-weight: 700;
     margin-bottom: 0.5rem;
+    color: #ffffff;
 }
+
 #settings-content .settings-desc {
-    color: #b0b8d1;
+    color: #9ca3af;
     font-size: 1.2rem;
     margin-bottom: 2rem;
 }
+
 #settings-content .settings-section {
-    background: #181c2f;
+    background: #1f2937;
     border-radius: 12px;
     padding: 32px 32px 24px 32px;
     margin-bottom: 32px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-    border: 1px solid #232846;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    border: 1px solid #374151;
 }
+
 #settings-content .settings-section h2 {
     font-size: 1.3rem;
     margin-bottom: 0.5rem;
+    color: #ffffff;
 }
+
 #settings-content .section-desc {
-    color: #b0b8d1;
+    color: #9ca3af;
     margin-bottom: 1.5rem;
 }
+
 #settings-content .setting-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 18px 0 18px 0;
-    border-bottom: 1px solid #232846;
+    border-bottom: 1px solid #e5e7eb;
 }
+
 #settings-content .setting-row:last-child {
     border-bottom: none;
 }
+
 #settings-content .setting-label {
     font-size: 1.1rem;
     font-weight: 500;
     margin-bottom: 2px;
+    color: #ffffff;
 }
+
 #settings-content .setting-desc {
-    color: #b0b8d1;
+    color: #9ca3af;
     font-size: 0.98rem;
 }
+
 #settings-content .switch {
     position: relative;
     display: inline-block;
     width: 48px;
     height: 26px;
 }
+
 #settings-content .switch input {
     opacity: 0;
     width: 0;
     height: 0;
 }
+
 #settings-content .slider {
     position: absolute;
     cursor: pointer;
     top: 0; left: 0; right: 0; bottom: 0;
-    background: #232846;
+    background: #d1d5db;
     border-radius: 26px;
     transition: .3s;
 }
+
 #settings-content .slider:before {
     position: absolute;
     content: "";
@@ -75,21 +91,24 @@
     width: 20px;
     left: 3px;
     bottom: 3px;
-    background: #fff;
+    background: #1f2937;
     border-radius: 50%;
     transition: .3s;
 }
+
 #settings-content .switch input:checked + .slider {
-    background: #2563eb;
+    background: #3b82f6;
 }
+
 #settings-content .switch input:checked + .slider:before {
     transform: translateX(22px);
-    background: #fff;
+    background: #1f2937;
 }
+
 #settings-content .save-btn {
     margin-top: 24px;
     background: #3b82f6;
-    color: #fff;
+    color: #ffffff;
     border: none;
     border-radius: 8px;
     padding: 12px 32px;
@@ -104,45 +123,4 @@
 @media (max-width: 600px) {
     #settings-content .settings-container { padding: 0 8px; }
     #settings-content .settings-section { padding: 18px 6px 12px 6px; }
-}
-body.light-mode #settings-content .settings-container {
-    background: transparent;
-    color: #232846;
-}
-body.light-mode #settings-content .settings-title,
-body.light-mode #settings-content .settings-section h2 {
-    color: #232846;
-}
-body.light-mode #settings-content .settings-desc,
-body.light-mode #settings-content .section-desc,
-body.light-mode #settings-content .setting-desc,
-body.light-mode #settings-content label {
-    color: #6b7280;
-}
-body.light-mode #settings-content .settings-section {
-    background: #fff;
-    border: 1px solid #e6eaff;
-    box-shadow: 0 2px 8px rgba(59,130,246,0.04);
-}
-body.light-mode #settings-content .setting-row {
-    border-bottom: 1px solid #e6eaff;
-}
-body.light-mode #settings-content .switch .slider {
-    background: #e6eaff;
-}
-body.light-mode #settings-content .switch input:checked + .slider {
-    background: #2563eb;
-}
-body.light-mode #settings-content .save-btn {
-    background: #2563eb;
-    color: #fff;
-}
-body.light-mode #settings-content .save-btn:hover {
-    background: #1d4ed8;
-}
-body.light-mode #settings-content input,
-body.light-mode #settings-content select {
-    background: #f4f6fa;
-    color: #232846;
-    border: 1.5px solid #e6eaff;
 }

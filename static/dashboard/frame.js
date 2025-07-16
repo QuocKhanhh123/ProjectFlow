@@ -10,7 +10,7 @@ function toggleMode() {
         localStorage.setItem('theme', 'dark');
     }
 }
-// Tự động lưu trạng thái theme
+
 window.onload = function() {
     const theme = localStorage.getItem('theme');
     const body = document.body;
@@ -23,10 +23,12 @@ window.onload = function() {
         icon.textContent = '🌙';
     }
 }
+
 function toggleUserMenu() {
     const menu = document.getElementById('user-menu');
     menu.classList.toggle('show');
 }
+
 window.onclick = function(event) {
     if (!event.target.matches('.user-btn')) {
         var dropdowns = document.getElementsByClassName("user-menu");

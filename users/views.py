@@ -9,9 +9,7 @@ def register_view(request):
         form = RegisterForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('login')
-        else:
-            print(form.errors)  
+            return redirect('login')  
     else:
         form = RegisterForm()
     return render(request, 'users/register.html', {'form': form})
@@ -22,9 +20,7 @@ def custom_login_view(request):
         if form.is_valid():
             user = form.get_user()
             login(request, user)
-            return redirect('view_projects') 
-        else:
-            print(form.errors)
+            return redirect('view_projects')
     else:
         form = AuthenticationForm()
     return render(request, 'users/login.html', {'form': form})

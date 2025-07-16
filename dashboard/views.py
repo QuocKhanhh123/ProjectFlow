@@ -2,17 +2,13 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
-from django.core.mail import send_mail
 from django.utils import timezone
-from django.db.models import Q
 from datetime import timedelta
 import json
 from .models import Project, Task, ProjectStatus, Comment, ProjectMember, ProjectInvitation, MemberRole, InvitationStatus
 from .forms import ProjectForm
 from users.models import User
-from users.forms import ProfileUpdateForm, ChangePasswordForm
 
 
 def get_user_project_access(user, project):
@@ -237,7 +233,7 @@ def view_projects(request):
         'completed_projects': completed_projects,
         'on_hold_projects': on_hold_projects,
     }
-    print(context)  # Debugging line to check context
+
 
     return render(request, 'dashboard/projects_content.html', context)
 
@@ -432,18 +428,9 @@ def view_project_members(request, project_id):
     # Get all members with additional info
     members = ProjectMember.objects.filter(project=project).select_related('user').order_by('-joined_at')
     
-    print(f"DEBUG: Project ID: {project.id}")
-    print(f"DEBUG: Project Name: {project.name}")
-    print(f"DEBUG: Project Owner: {project.owner.username}")
-    print(f"DEBUG: Current User: {request.user.username}")
-    print(f"DEBUG: User Member Role: {user_member.role}")
-    print(f"DEBUG: Members count: {members.count()}")
-    print(f"DEBUG: Members: {[m.user.username for m in members]}")
-    
     # Get member statistics with more details
     member_stats = []
     for member in members:
-        print(f"DEBUG: Processing member: {member.user.username}")
         try:
             # Get tasks assigned to this member
             assigned_tasks = Task.objects.filter(project=project, assignee=member.user).count()
@@ -484,10 +471,8 @@ def view_project_members(request, project_id):
             }
             
             member_stats.append(member_stat)
-            print(f"DEBUG: Added member stat for {member.user.username}: tasks={assigned_tasks}, completion={completion_rate}%")
             
         except Exception as e:
-            print(f"DEBUG: Error processing member {member.user.username}: {str(e)}")
             # Add a basic stat even if there's an error
             member_stats.append({
                 'member': member,
@@ -498,8 +483,6 @@ def view_project_members(request, project_id):
                 'last_activity': None,
                 'completion_rate': 0
             })
-    
-    print(f"DEBUG: Final member_stats count: {len(member_stats)}")
     
     # Get pending invitations
     pending_invitations = ProjectInvitation.objects.filter(
@@ -540,10 +523,6 @@ def view_project_members(request, project_id):
         'recent_tasks': recent_tasks,
         'recent_comments': recent_comments,
     }
-    
-    print(f"DEBUG: Context - member_stats length: {len(context['member_stats'])}")
-    print(f"DEBUG: Context - members length: {len(context['members'])}")
-    print(f"DEBUG: Context - total_members: {context['total_members']}")
     
     return render(request, 'dashboard/members.html', context)
 
