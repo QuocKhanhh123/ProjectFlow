@@ -1,0 +1,225 @@
+{% extends "dashboard/base.html" %}
+
+{% block include_header %}
+<link rel="stylesheet" href="/static/dashboard/members.css">
+{% endblock %}
+
+{% block container %}
+<div id="members-content">
+    <div class="members-header">
+        <div class="members-title-section">
+            <h1 class="members-title">Quản lý thành viên</h1>
+            <p class="members-desc">Xem tất cả các dự án mà bạn tham gia và vai trò của bạn trong từng dự án.</p>
+        </div>
+    </div>
+    
+    <div class="members-stats">
+        <div class="stat-card">
+            <div class="stat-label">Tổng dự án tham gia <i class="fas fa-project-diagram"></i></div>
+            <div class="stat-value">{{ total_projects }}</div>
+            <div class="stat-desc">Số dự án bạn đang tham gia</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Vai trò chủ sở hữu <i class="fas fa-crown"></i></div>
+            <div class="stat-value">{{ owner_count }}</div>
+            <div class="stat-desc">Dự án bạn làm chủ sở hữu</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Vai trò quản trị <i class="fas fa-shield-alt"></i></div>
+            <div class="stat-value">{{ admin_count }}</div>
+            <div class="stat-desc">Dự án bạn là quản trị viên</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Thành viên thường <i class="fas fa-user"></i></div>
+            <div class="stat-value">{{ member_count }}</div>
+            <div class="stat-desc">Dự án bạn là thành viên thường</div>
+        </div>
+    </div>
+    
+    <div class="projects-section">
+        <h2 class="section-title">Dự án tham gia ({{ total_projects }})</h2>
+        
+        {% if projects_data %}
+            <div class="projects-grid">
+                {% for project_data in projects_data %}
+                <div class="project-card">
+                    <div class="project-header">
+                        <h3 class="project-name">{{ project_data.project.name }}</h3>
+                        <span class="role-badge role-{{ project_data.user_role|lower }}">
+                            {% if project_data.user_role == 'OWNER' %}
+                                <i class="fas fa-crown"></i> Chủ sở hữu
+                            {% elif project_data.user_role == 'ADMIN' %}
+                                <i class="fas fa-shield-alt"></i> Quản trị viên
+                            {% else %}
+                                <i class="fas fa-user"></i> Thành viên
+                            {% endif %}
+                        </span>
+                    </div>
+                    
+                    <div class="project-desc">
+                        {{ project_data.project.description|truncatewords:20 }}
+                    </div>
+                    
+                    <div class="project-stats">
+                        <div class="stat-item">
+                            <i class="fas fa-users"></i>
+                            <span>{{ project_data.members_count }} thành viên</span>
+                        </div>
+                        {% if project_data.pending_invitations > 0 %}
+                        <div class="stat-item">
+                            <i class="fas fa-clock"></i>
+                            <span>{{ project_data.pending_invitations }} lời mời</span>
+                        </div>
+                        {% endif %}
+                        <div class="stat-item">
+                            <i class="fas fa-calendar"></i>
+                            <span>Tham gia: {{ project_data.joined_at|date:"d/m/Y" }}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="project-actions">
+                        <a href="{% url 'view_project_detail' project_data.project.id %}" class="btn btn-outline btn-sm">
+                            <i class="fas fa-eye"></i> Xem dự án
+                        </a>
+                        {% if project_data.user_role == 'OWNER' or project_data.user_role == 'ADMIN' %}
+                        <a href="{% url 'view_project_members' project_data.project.id %}" class="btn btn-primary btn-sm">
+                            <i class="fas fa-users"></i> Quản lý thành viên
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h3>Chưa tham gia dự án nào</h3>
+                <p>Bạn chưa tham gia bất kỳ dự án nào. Hãy tạo dự án mới hoặc chờ lời mời từ người khác.</p>
+                <a href="{% url 'view_projects' %}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Tạo dự án mới
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+.projects-section {
+    margin-top: 40px;
+}
+
+.section-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 24px;
+    color: #fff;
+}
+
+.projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 24px;
+}
+
+.project-card {
+    background: #181c2f;
+    border: 1px solid #232846;
+    border-radius: 12px;
+    padding: 24px;
+    transition: all 0.3s ease;
+}
+
+.project-card:hover {
+    border-color: #4f46e5;
+    transform: translateY(-2px);
+}
+
+.project-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+}
+
+.project-name {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #fff;
+    margin: 0;
+    flex: 1;
+}
+
+.project-desc {
+    color: #b0b8d1;
+    margin-bottom: 20px;
+    line-height: 1.5;
+}
+
+.project-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #9ca3af;
+    font-size: 0.9rem;
+}
+
+.stat-item i {
+    color: #4f46e5;
+}
+
+.project-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #b0b8d1;
+}
+
+.empty-icon {
+    font-size: 4rem;
+    color: #4f46e5;
+    margin-bottom: 20px;
+}
+
+.empty-state h3 {
+    font-size: 1.5rem;
+    margin-bottom: 12px;
+    color: #fff;
+}
+
+.empty-state p {
+    font-size: 1.1rem;
+    margin-bottom: 24px;
+    max-width: 500px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+@media (max-width: 768px) {
+    .projects-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .project-header {
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .project-actions {
+        flex-direction: column;
+    }
+}
+</style>
+{% endblock %}

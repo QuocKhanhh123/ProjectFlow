@@ -1,165 +1,392 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chi tiết công việc</title>
-  <style>
-    body {
-      margin: 0;
-      padding: 40px;
-      background-color: #0f172a;
-      color: #fff;
-      font-family: Arial, sans-serif;
-    }
+{% extends "dashboard/base.html" %}
 
-    a {
-      text-decoration: none;
-      color: #60a5fa;
-      display: inline-block;
-      margin-bottom: 20px;
-    }
+{% block include_header %}
+<link rel="stylesheet" href="/static/dashboard/project.css">
+{% endblock %}
 
-    .task-card, .comment-box {
-      background-color: #1e293b;
-      border-radius: 8px;
-      padding: 24px;
-      margin-bottom: 20px;
-      border: 1px solid #334155;
-    }
+{% block container %}
+<div class="task-detail-container">
+  <div class="task-detail-header">
+    <a href="{% url 'view_project_detail' project.id %}" class="back-link">
+      ← Quay lại dự án {{ project.name }}
+    </a>
+  </div>
 
-    .task-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: start;
-    }
-
-    .task-title {
-      font-size: 24px;
-      font-weight: bold;
-      margin-bottom: 8px;
-    }
-
-    .badges {
-      margin-bottom: 12px;
-    }
-
-    .badge {
-      display: inline-block;
-      background-color: #2563eb;
-      color: #fff;
-      padding: 4px 10px;
-      border-radius: 999px;
-      font-size: 13px;
-      margin-right: 6px;
-    }
-
-    .description {
-      margin: 12px 0;
-      color: #e2e8f0;
-    }
-
-    .executor {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 10px;
-      color: #e2e8f0;
-    }
-
-    .executor span.avatar {
-      display: inline-block;
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      background-color: #cbd5e1;
-    }
-
-    .time {
-      color: #94a3b8;
-      font-size: 14px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .btn-delete {
-      background-color: #b91c1c;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      padding: 8px 12px;
-      cursor: pointer;
-    }
-
-    .comment-box h3 {
-      font-size: 18px;
-      margin-bottom: 16px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .no-comments {
-      color: #94a3b8;
-      margin-bottom: 16px;
-    }
-
-    .comment-form {
-      display: flex;
-      gap: 8px;
-    }
-
-    .comment-form input {
-      flex: 1;
-      padding: 10px;
-      border-radius: 6px;
-      border: none;
-      background-color: #0f172a;
-      color: white;
-      border: 1px solid #334155;
-    }
-
-    .comment-form button {
-      padding: 10px 16px;
-      background-color: #2563eb;
-      border: none;
-      border-radius: 6px;
-      color: white;
-      cursor: pointer;
-    }
-  </style>
-</head>
-<body>
-
-  <a href="#">← Quay lại dự án</a>
-
-  <div class="task-card">
-    <div class="task-header">
-      <div>
-        <div class="task-title">abc</div>
-        <div class="badges">
-          <span class="badge">Đang thực hiện</span>
-          <span class="badge">Ưu tiên trung bình</span>
+  <div class="task-detail-content">
+    <div class="task-main-info">
+      <div class="task-info-header">
+        <h1 class="task-detail-title">{{ task.title }}</h1>
+        <div class="task-actions">
+          <button class="btn btn-edit" onclick="showEditTaskModal()">✏️ Sửa</button>
+          <button class="btn btn-delete" onclick="deleteTask()">🗑️ Xóa</button>
         </div>
-        <div class="description">Mô tả<br>aaaaa</div>
-        <div class="executor">
-          Người thực hiện: <span class="avatar"></span>
-        </div>
-        <div class="time">🕒 Tạo lúc: 19:44:00 10/7/2025</div>
       </div>
-      <button class="btn-delete">🗑️</button>
+
+      <div class="task-meta">
+        <div class="task-badges">
+          <span class="task-status-badge status-{{ task.status|lower }}">
+            {% if task.status == 'TODO' %}Cần làm{% elif task.status == 'IN_PROGRESS' %}Đang thực hiện{% else %}Hoàn thành{% endif %}
+          </span>
+          <span class="task-priority-badge priority-{{ task.priority|lower }}">
+            {% if task.priority == 'HIGH' %}Cao{% elif task.priority == 'MEDIUM' %}Trung bình{% else %}Thấp{% endif %}
+          </span>
+        </div>
+        <div class="task-dates">
+          <div class="task-created">Tạo: {{ task.created_at|date:"d/m/Y H:i" }}</div>
+          <div class="task-updated">Cập nhật: {{ task.updated_at|date:"d/m/Y H:i" }}</div>
+        </div>
+      </div>
+
+      {% if task.description %}
+      <div class="task-description">
+        <h3>Mô tả</h3>
+        <p>{{ task.description|linebreaks }}</p>
+      </div>
+      {% endif %}
+
+      <div class="task-assignee">
+        <h3>Người thực hiện</h3>
+        <div class="assignee-info">
+          {% if task.assignee %}
+            <div class="assignee-avatar"></div>
+            <span class="assignee-name">{{ task.assignee.username }}</span>
+          {% else %}
+            <span class="assignee-name">Chưa được gán</span>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="task-comments">
+      <h3>Bình luận ({{ comments|length }})</h3>
+      
+      <div class="comment-form">
+        <textarea id="commentInput" placeholder="Thêm bình luận..." rows="3"></textarea>
+        <button class="btn btn-comment" onclick="addComment()">Gửi bình luận</button>
+      </div>
+
+      <div class="comments-list" id="commentsList">
+        {% for comment in comments %}
+        <div class="comment-item" data-comment-id="{{ comment.id }}">
+          <div class="comment-header">
+            <div class="comment-author">
+              <div class="comment-avatar"></div>
+              <span class="comment-username">{{ comment.user.username }}</span>
+            </div>
+            <div class="comment-date">{{ comment.created_at|date:"d/m/Y H:i" }}</div>
+          </div>
+          <div class="comment-content">{{ comment.content|linebreaks }}</div>
+        </div>
+        {% empty %}
+        <div class="no-comments">Chưa có bình luận nào.</div>
+        {% endfor %}
+      </div>
     </div>
   </div>
+</div>
 
-  <div class="comment-box">
-    <h3>💬 Bình luận (0)</h3>
-    <p class="no-comments">Chưa có bình luận nào.</p>
-    <form class="comment-form">
-      <input type="text" placeholder="Thêm bình luận...">
-      <button type="submit">Gửi</button>
-    </form>
+<!-- Modal Sửa Task -->
+<div id="editTaskModal" class="modal-overlay hidden">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Sửa công việc</h2>
+      <button class="modal-close" onclick="hideEditTaskModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <form id="editTaskForm">
+        {% csrf_token %}
+        <div class="form-group">
+          <label for="editTaskTitle">Tiêu đề</label>
+          <input type="text" id="editTaskTitle" name="title" value="{{ task.title }}" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="editTaskDescription">Mô tả</label>
+          <textarea id="editTaskDescription" name="description" rows="4">{{ task.description }}</textarea>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="editTaskStatus">Trạng thái</label>
+            <select id="editTaskStatus" name="status">
+              <option value="TODO" {% if task.status == 'TODO' %}selected{% endif %}>Cần làm</option>
+              <option value="IN_PROGRESS" {% if task.status == 'IN_PROGRESS' %}selected{% endif %}>Đang thực hiện</option>
+              <option value="DONE" {% if task.status == 'DONE' %}selected{% endif %}>Hoàn thành</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="editTaskPriority">Độ ưu tiên</label>
+            <select id="editTaskPriority" name="priority">
+              <option value="LOW" {% if task.priority == 'LOW' %}selected{% endif %}>Thấp</option>
+              <option value="MEDIUM" {% if task.priority == 'MEDIUM' %}selected{% endif %}>Trung bình</option>
+              <option value="HIGH" {% if task.priority == 'HIGH' %}selected{% endif %}>Cao</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="form-actions">
+          <button type="button" class="btn btn-cancel" onclick="hideEditTaskModal()">Hủy</button>
+          <button type="submit" class="btn btn-save">Lưu thay đổi</button>
+        </div>
+      </form>
+    </div>
   </div>
+</div>
 
-</body>
-</html>
+<script>
+  // Modal functions
+  function showEditTaskModal() {
+    document.getElementById('editTaskModal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function hideEditTaskModal() {
+    document.getElementById('editTaskModal').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+  }
+
+  // Close modal when clicking outside
+  document.addEventListener('click', function(e) {
+    const modal = document.getElementById('editTaskModal');
+    if (e.target === modal) {
+      hideEditTaskModal();
+    }
+  });
+
+  // Handle edit form submission
+  document.getElementById('editTaskForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const taskData = {
+      title: formData.get('title'),
+      description: formData.get('description'),
+      status: formData.get('status'),
+      priority: formData.get('priority')
+    };
+    
+    fetch(`/dashboard/projects/{{ project.id }}/tasks/{{ task.id }}/update/`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken')
+      },
+      body: JSON.stringify(taskData)
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        showNotification('Công việc đã được cập nhật thành công!', 'success');
+        hideEditTaskModal();
+        // Update the page content
+        updateTaskDisplay(data.task);
+      } else {
+        showNotification(data.error || 'Có lỗi xảy ra khi cập nhật công việc', 'error');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      showNotification('Có lỗi xảy ra khi cập nhật công việc', 'error');
+    });
+  });
+
+  // Add comment function
+  function addComment() {
+    const content = document.getElementById('commentInput').value.trim();
+    if (!content) {
+      showNotification('Vui lòng nhập nội dung bình luận', 'error');
+      return;
+    }
+    
+    fetch(`/dashboard/projects/{{ project.id }}/tasks/{{ task.id }}/comments/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken')
+      },
+      body: JSON.stringify({ content: content })
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        showNotification('Bình luận đã được thêm thành công!', 'success');
+        document.getElementById('commentInput').value = '';
+        addCommentToList(data.comment);
+      } else {
+        showNotification(data.error || 'Có lỗi xảy ra khi thêm bình luận', 'error');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      showNotification('Có lỗi xảy ra khi thêm bình luận', 'error');
+    });
+  }
+
+  // Delete task function
+  function deleteTask() {
+    if (!confirm('Bạn có chắc chắn muốn xóa công việc này?')) {
+      return;
+    }
+    
+    fetch(`/dashboard/projects/{{ project.id }}/tasks/{{ task.id }}/delete/`, {
+      method: 'DELETE',
+      headers: {
+        'X-CSRFToken': getCookie('csrftoken')
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        showNotification('Công việc đã được xóa thành công!', 'success');
+        setTimeout(() => {
+          window.location.href = '/dashboard/projects/{{ project.id }}/';
+        }, 1000);
+      } else {
+        showNotification(data.error || 'Có lỗi xảy ra khi xóa công việc', 'error');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      showNotification('Có lỗi xảy ra khi xóa công việc', 'error');
+    });
+  }
+
+  // Helper functions
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+
+  function showNotification(message, type) {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.textContent = message;
+    notification.style.cssText = `
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 15px 20px;
+      border-radius: 6px;
+      color: white;
+      font-weight: 500;
+      z-index: 10000;
+      animation: slideIn 0.3s ease-out;
+      ${type === 'success' ? 'background: #059669;' : 'background: #dc2626;'}
+    `;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+      notification.remove();
+    }, 3000);
+  }
+
+  function updateTaskDisplay(task) {
+    // Update title
+    document.querySelector('.task-detail-title').textContent = task.title;
+    
+    // Update badges
+    const statusBadge = document.querySelector('.task-status-badge');
+    const priorityBadge = document.querySelector('.task-priority-badge');
+    
+    statusBadge.className = `task-status-badge status-${task.status.toLowerCase()}`;
+    priorityBadge.className = `task-priority-badge priority-${task.priority.toLowerCase()}`;
+    
+    const statusText = {
+      'TODO': 'Cần làm',
+      'IN_PROGRESS': 'Đang thực hiện',
+      'DONE': 'Hoàn thành'
+    };
+    
+    const priorityText = {
+      'LOW': 'Thấp',
+      'MEDIUM': 'Trung bình',
+      'HIGH': 'Cao'
+    };
+    
+    statusBadge.textContent = statusText[task.status];
+    priorityBadge.textContent = priorityText[task.priority];
+    
+    // Update description
+    const descriptionDiv = document.querySelector('.task-description p');
+    if (descriptionDiv) {
+      descriptionDiv.textContent = task.description || '';
+    }
+    
+    // Update dates
+    const updatedDate = new Date(task.updated_at).toLocaleDateString('vi-VN', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+    document.querySelector('.task-updated').textContent = `Cập nhật: ${updatedDate}`;
+  }
+
+  function addCommentToList(comment) {
+    const commentsList = document.getElementById('commentsList');
+    const noComments = commentsList.querySelector('.no-comments');
+    
+    if (noComments) {
+      noComments.remove();
+    }
+    
+    const commentDate = new Date(comment.created_at).toLocaleDateString('vi-VN', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+    
+    const commentHTML = `
+      <div class="comment-item" data-comment-id="${comment.id}">
+        <div class="comment-header">
+          <div class="comment-author">
+            <div class="comment-avatar"></div>
+            <span class="comment-username">${comment.user.username}</span>
+          </div>
+          <div class="comment-date">${commentDate}</div>
+        </div>
+        <div class="comment-content">${comment.content}</div>
+      </div>
+    `;
+    
+    commentsList.insertAdjacentHTML('beforeend', commentHTML);
+    
+    // Update comment count
+    const commentHeader = document.querySelector('.task-comments h3');
+    const currentCount = commentsList.querySelectorAll('.comment-item').length;
+    commentHeader.textContent = `Bình luận (${currentCount})`;
+  }
+
+  // Add CSS for notification animation
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+  `;
+  document.head.appendChild(style);
+</script>
+
+{% endblock %}

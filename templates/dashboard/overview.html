@@ -2,46 +2,292 @@
 
 {% block include_header %}
 <link rel="stylesheet" href="/static/dashboard/overview.css">
-{% endblock%}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
 
 {% block container %}
-<!-- overview.html -->
 <div id="overview-content" class="content-section active">
-    <h1>Dự án</h1>
-    <p>Quản lý tất cả các dự án của bạn.</p>
-    <div class="project-empty">
-        <h2>Chưa có dự án nào</h2>
-        <p>Tạo dự án đầu tiên của bạn để bắt đầu.</p>
-        <button class="create-btn" onclick="openModal()">+ Tạo dự án</button>
+    <div class="overview-header">
+        <h1>Tổng quan dự án</h1>
+        <p>Chào mừng trở lại, {{ user.username }}!</p>
     </div>
-</div>
 
-<!-- Modal overlay + form -->
-<div id="modal-overlay" class="modal-overlay hidden">
-    <div class="modal-content">
-        <span class="close-btn" onclick="closeModal()">&times;</span>
-        <h2>Tạo dự án mới</h2>
-        <p>Điền thông tin để tạo dự án mới.</p>
-        <form>
-            <label for="project-name">Tên dự án</label>
-            <input type="text" id="project-name" placeholder="Nhập tên dự án">
+    <!-- Statistics Cards -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon projects-icon">
+                <i class="fas fa-folder"></i>
+            </div>
+            <div class="stat-content">
+                <h3>{{ total_projects }}</h3>
+                <p>Tổng dự án</p>
+                <small>{{ owned_count }} sở hữu • {{ member_count }} tham gia</small>
+            </div>
+        </div>
 
-            <label for="description">Mô tả</label>
-            <textarea id="description" placeholder="Mô tả ngắn về dự án"></textarea>
+        <div class="stat-card">
+            <div class="stat-icon tasks-icon">
+                <i class="fas fa-tasks"></i>
+            </div>
+            <div class="stat-content">
+                <h3>{{ total_tasks }}</h3>
+                <p>Tổng nhiệm vụ</p>
+                <small>{{ done_tasks }} hoàn thành • {{ in_progress_tasks }} đang thực hiện</small>
+            </div>
+        </div>
 
-            <button type="submit" class="submit-btn">Tạo dự án</button>
-        </form>
+        <div class="stat-card">
+            <div class="stat-icon my-tasks-icon">
+                <i class="fas fa-user-check"></i>
+            </div>
+            <div class="stat-content">
+                <h3>{{ my_total_tasks }}</h3>
+                <p>Nhiệm vụ của tôi</p>
+                <small>{{ my_done_tasks }} hoàn thành • {{ my_todo_tasks }} chưa làm</small>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon team-icon">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="stat-content">
+                <h3>{{ total_members }}</h3>
+                <p>Thành viên nhóm</p>
+                <small>{{ active_members }} hoạt động gần đây</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="charts-section">
+        <div class="chart-container">
+            <div class="chart-header">
+                <h3>Trạng thái dự án</h3>
+            </div>
+            <div class="chart-wrapper">
+                <canvas id="projectStatusChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <div class="chart-header">
+                <h3>Trạng thái nhiệm vụ</h3>
+            </div>
+            <div class="chart-wrapper">
+                <canvas id="taskStatusChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <div class="chart-header">
+                <h3>Ưu tiên nhiệm vụ</h3>
+            </div>
+            <div class="chart-wrapper">
+                <canvas id="taskPriorityChart"></canvas>
+            </div>
+        </div>
+
+        <div class="chart-container">
+            <div class="chart-header">
+                <h3>Nhiệm vụ của tôi</h3>
+            </div>
+            <div class="chart-wrapper">
+                <canvas id="myTasksChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="activity-section">
+        <div class="activity-stats">
+            <h3>Hoạt động gần đây (7 ngày qua)</h3>
+            <div class="activity-grid">
+                <div class="activity-item">
+                    <span class="activity-number">{{ recent_tasks }}</span>
+                    <span class="activity-label">Nhiệm vụ mới</span>
+                </div>
+                <div class="activity-item">
+                    <span class="activity-number">{{ recent_comments }}</span>
+                    <span class="activity-label">Bình luận</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Projects -->
+    {% if recent_projects %}
+    <div class="recent-projects">
+        <h3>Dự án gần đây</h3>
+        <div class="projects-grid">
+            {% for project in recent_projects %}
+            <div class="project-card">
+                <div class="project-header">
+                    <h4>{{ project.name }}</h4>
+                    <span class="project-status status-{{ project.status|lower }}">
+                        {% if project.status == 'ACTIVE' %}Đang hoạt động{% endif %}
+                        {% if project.status == 'COMPLETED' %}Hoàn thành{% endif %}
+                        {% if project.status == 'ON_HOLD' %}Tạm dừng{% endif %}
+                    </span>
+                </div>
+                <p class="project-description">{{ project.description|truncatewords:15 }}</p>
+                <div class="project-footer">
+                    <span class="project-date">{{ project.created_at|date:"d/m/Y" }}</span>
+                    <a href="{% url 'view_project_detail' project.id %}" class="view-project-btn">
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Project Progress -->
+    {% if project_progress %}
+    <div class="progress-section">
+        <h3>Tiến độ dự án</h3>
+        <div class="progress-list">
+            {% for item in project_progress %}
+            <div class="progress-item">
+                <div class="progress-header">
+                    <span class="project-name">{{ item.project.name }}</span>
+                    <span class="progress-percentage">{{ item.progress }}%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: {{ item.progress }}%"></div>
+                </div>
+                <div class="progress-details">
+                    <small>{{ item.completed_tasks }}/{{ item.total_tasks }} nhiệm vụ hoàn thành</small>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+        <h3>Thao tác nhanh</h3>
+        <div class="actions-grid">
+            <a href="{% url 'create_project' %}" class="action-btn">
+                <i class="fas fa-plus"></i>
+                <span>Tạo dự án mới</span>
+            </a>
+            <a href="{% url 'view_projects' %}" class="action-btn">
+                <i class="fas fa-folder-open"></i>
+                <span>Xem tất cả dự án</span>
+            </a>
+            <a href="{% url 'view_all_members' %}" class="action-btn">
+                <i class="fas fa-users"></i>
+                <span>Quản lý thành viên</span>
+            </a>
+        </div>
     </div>
 </div>
 
 <script>
-    function openModal() {
-        document.getElementById('modal-overlay').classList.remove('hidden');
-    }
+// Chart data from Django
+const chartData = {{ chart_data|safe }};
 
-    function closeModal() {
-        document.getElementById('modal-overlay').classList.add('hidden');
+// Chart configuration
+const chartConfig = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+        legend: {
+            position: 'bottom',
+            labels: {
+                color: '#fff',
+                font: {
+                    size: 12
+                }
+            }
+        }
     }
+};
+
+// Project Status Chart
+const projectStatusCtx = document.getElementById('projectStatusChart').getContext('2d');
+new Chart(projectStatusCtx, {
+    type: 'doughnut',
+    data: {
+        labels: ['Đang hoạt động', 'Hoàn thành', 'Tạm dừng'],
+        datasets: [{
+            data: [chartData.project_status.active, chartData.project_status.completed, chartData.project_status.on_hold],
+            backgroundColor: ['#28a745', '#007bff', '#ffc107'],
+            borderWidth: 0
+        }]
+    },
+    options: chartConfig
+});
+
+// Task Status Chart
+const taskStatusCtx = document.getElementById('taskStatusChart').getContext('2d');
+new Chart(taskStatusCtx, {
+    type: 'bar',
+    data: {
+        labels: ['Chưa làm', 'Đang làm', 'Hoàn thành'],
+        datasets: [{
+            data: [chartData.task_status.todo, chartData.task_status.in_progress, chartData.task_status.done],
+            backgroundColor: ['#dc3545', '#ffc107', '#28a745'],
+            borderWidth: 0,
+            borderRadius: 4
+        }]
+    },
+    options: {
+        ...chartConfig,
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    color: '#fff'
+                },
+                grid: {
+                    color: 'rgba(255, 255, 255, 0.1)'
+                }
+            },
+            x: {
+                ticks: {
+                    color: '#fff'
+                },
+                grid: {
+                    color: 'rgba(255, 255, 255, 0.1)'
+                }
+            }
+        }
+    }
+});
+
+// Task Priority Chart
+const taskPriorityCtx = document.getElementById('taskPriorityChart').getContext('2d');
+new Chart(taskPriorityCtx, {
+    type: 'pie',
+    data: {
+        labels: ['Cao', 'Trung bình', 'Thấp'],
+        datasets: [{
+            data: [chartData.task_priority.high, chartData.task_priority.medium, chartData.task_priority.low],
+            backgroundColor: ['#dc3545', '#ffc107', '#28a745'],
+            borderWidth: 0
+        }]
+    },
+    options: chartConfig
+});
+
+// My Tasks Chart
+const myTasksCtx = document.getElementById('myTasksChart').getContext('2d');
+new Chart(myTasksCtx, {
+    type: 'doughnut',
+    data: {
+        labels: ['Chưa làm', 'Đang làm', 'Hoàn thành'],
+        datasets: [{
+            data: [chartData.my_tasks.todo, chartData.my_tasks.in_progress, chartData.my_tasks.done],
+            backgroundColor: ['#dc3545', '#ffc107', '#28a745'],
+            borderWidth: 0
+        }]
+    },
+    options: chartConfig
+});
 </script>
 
 {% endblock %}

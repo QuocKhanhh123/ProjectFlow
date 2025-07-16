@@ -26,7 +26,7 @@
                 <a href="{% url 'view_projects' %}"><span>📁</span> Dự án</a>
             </li>
             <li class="{% if request.path == '/dashboard/members/' %}active{% endif %}">
-                <a href="{% url 'view_project_members' %}"><span>👥</span> Thành viên</a>
+                <a href="{% url 'view_all_members' %}"><span>👥</span> Thành viên</a>
             </li>
             <li class="{% if request.path == '/dashbooard/settings/' %}active{% endif %}">
                 <a href="{% url 'view_settings' %}"><span>⚙️</span> Cài đặt</a>

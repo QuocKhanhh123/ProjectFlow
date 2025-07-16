@@ -1,5 +1,9 @@
 {% extends "dashboard/base.html"%}
 
+{% block include_header %}
+<link rel="stylesheet" href="/static/dashboard/personal_detail.css">
+{% endblock %}
+
 {% block container %}
 <div id="personal_details-content" class="content-section">
     <div class="personal-header">
@@ -8,39 +12,306 @@
             <p>Xem và quản lý thông tin cá nhân của bạn.</p>
         </div>
     </div>
+    
     <div class="personal-stats">
-        <div class="stat-card"><div class="stat-title">Dự án tham gia <i class="fa-regular fa-calendar"></i></div><div class="stat-value">0</div></div>
-        <div class="stat-card"><div class="stat-title">Dự án sở hữu <i class="fa-solid fa-folder"></i></div><div class="stat-value">0</div></div>
-        <div class="stat-card"><div class="stat-title">Công việc được giao <i class="fa-regular fa-file-lines"></i></div><div class="stat-value">0</div></div>
-        <div class="stat-card"><div class="stat-title">Công việc hoàn thành <i class="fa-solid fa-check"></i></div><div class="stat-value">0</div></div>
-        <div class="stat-card"><div class="stat-title">Bình luận <i class="fa-regular fa-comment"></i></div><div class="stat-value">0</div></div>
+        <div class="stat-card">
+            <div class="stat-title">Dự án tham gia <i class="fa-regular fa-calendar"></i></div>
+            <div class="stat-value">{{ member_projects }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-title">Dự án sở hữu <i class="fa-solid fa-folder"></i></div>
+            <div class="stat-value">{{ owned_projects }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-title">Công việc được giao <i class="fa-regular fa-file-lines"></i></div>
+            <div class="stat-value">{{ assigned_tasks }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-title">Công việc hoàn thành <i class="fa-solid fa-check"></i></div>
+            <div class="stat-value">{{ completed_tasks }}</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-title">Bình luận <i class="fa-regular fa-comment"></i></div>
+            <div class="stat-value">{{ comments_count }}</div>
+        </div>
     </div>
+    
     <div class="personal-tabs">
-        <button class="tab-btn active">Thông tin cá nhân</button>
-        <button class="tab-btn">Hoạt động gần đây</button>
+        <button class="tab-btn active" onclick="switchTab('info')">Thông tin cá nhân</button>
+        <button class="tab-btn" onclick="switchTab('activity')">Hoạt động gần đây</button>
+        <button class="tab-btn" onclick="switchTab('password')">Đổi mật khẩu</button>
     </div>
-    <div class="personal-info-card">
-        <h2>Thông tin cá nhân</h2>
-        <p>Xem và cập nhật thông tin cá nhân của bạn.</p>
-        <div class="personal-info-main">
-            <div class="avatar-block">
-                <div class="avatar-img"></div>
-                <div class="avatar-info">
-                    <div class="avatar-name">Phan Quốc Khánh</div>
-                    <div class="avatar-email">phanquockhanh24@gmail.com</div>
-                    <div class="avatar-role">Thành viên</div>
-                    <div class="avatar-last">Hoạt động lần cuối: 20:08:15 27/6/2025</div>
+    
+    <!-- Tab Thông tin cá nhân -->
+    <div id="info-tab" class="tab-content active">
+        <div class="personal-info-card">
+            <h2>Thông tin cá nhân</h2>
+            <p>Xem và cập nhật thông tin cá nhân của bạn.</p>
+            <div class="personal-info-main">
+                <div class="avatar-block">
+                    <div class="avatar-img">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="avatar-info">
+                        <div class="avatar-name">{{ user.get_full_name|default:user.username }}</div>
+                        <div class="avatar-email">{{ user.email }}</div>
+                        <div class="avatar-role">{{ user.username }}</div>
+                        <div class="avatar-last">Hoạt động lần cuối: {{ user.last_active|date:"H:i:s d/m/Y" }}</div>
+                    </div>
                 </div>
+                
+                <form class="personal-form" id="profile-form">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="first_name">Tên</label>
+                        <input type="text" id="first_name" name="first_name" value="{{ user.first_name }}" disabled>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="last_name">Họ</label>
+                        <input type="text" id="last_name" name="last_name" value="{{ user.last_name }}" disabled>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="username">Tên đăng nhập</label>
+                        <input type="text" id="username" name="username" value="{{ user.username }}" disabled>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" value="{{ user.email }}" disabled>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" id="edit-btn" class="edit-btn">Chỉnh sửa thông tin</button>
+                        <button type="button" id="save-btn" class="save-btn hidden">Lưu thay đổi</button>
+                        <button type="button" id="cancel-btn" class="cancel-btn hidden">Hủy</button>
+                    </div>
+                </form>
             </div>
-            <form class="personal-form">
-                <label for="fullname">Họ tên</label>
-                <input type="text" id="fullname" value="Phan Quốc Khánh" disabled>
-                <label for="email">Email</label>
-                <input type="email" id="email" value="phanquockhanh24@gmail.com" disabled>
-                <button type="button" class="edit-btn">Chỉnh sửa thông tin</button>
+        </div>
+    </div>
+    
+    <!-- Tab Hoạt động gần đây -->
+    <div id="activity-tab" class="tab-content">
+        <div class="activity-section">
+            <h2>Hoạt động gần đây</h2>
+            
+            <div class="activity-block">
+                <h3>Nhiệm vụ gần đây</h3>
+                {% if recent_tasks %}
+                    <div class="activity-list">
+                        {% for task in recent_tasks %}
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <i class="fas fa-tasks"></i>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">{{ task.title }}</div>
+                                <div class="activity-meta">
+                                    <span class="activity-project">{{ task.project.name }}</span>
+                                    <span class="activity-status status-{{ task.status|lower }}">
+                                        {% if task.status == 'TODO' %}Chưa làm{% endif %}
+                                        {% if task.status == 'IN_PROGRESS' %}Đang làm{% endif %}
+                                        {% if task.status == 'DONE' %}Hoàn thành{% endif %}
+                                    </span>
+                                    <span class="activity-date">{{ task.updated_at|date:"d/m/Y" }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="no-activity">Chưa có nhiệm vụ nào được giao.</p>
+                {% endif %}
+            </div>
+            
+            <div class="activity-block">
+                <h3>Bình luận gần đây</h3>
+                {% if recent_comments %}
+                    <div class="activity-list">
+                        {% for comment in recent_comments %}
+                        <div class="activity-item">
+                            <div class="activity-icon">
+                                <i class="fas fa-comment"></i>
+                            </div>
+                            <div class="activity-content">
+                                <div class="activity-title">{{ comment.content|truncatewords:10 }}</div>
+                                <div class="activity-meta">
+                                    <span class="activity-project">{{ comment.task.project.name }}</span>
+                                    <span class="activity-task">{{ comment.task.title }}</span>
+                                    <span class="activity-date">{{ comment.created_at|date:"d/m/Y" }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="no-activity">Chưa có bình luận nào.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tab Đổi mật khẩu -->
+    <div id="password-tab" class="tab-content">
+        <div class="password-section">
+            <h2>Đổi mật khẩu</h2>
+            <p>Thay đổi mật khẩu để bảo mật tài khoản của bạn.</p>
+            
+            <form class="password-form" id="password-form">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="old_password">Mật khẩu hiện tại</label>
+                    <input type="password" id="old_password" name="old_password" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="new_password1">Mật khẩu mới</label>
+                    <input type="password" id="new_password1" name="new_password1" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="new_password2">Xác nhận mật khẩu mới</label>
+                    <input type="password" id="new_password2" name="new_password2" required>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="save-btn">Đổi mật khẩu</button>
+                </div>
             </form>
         </div>
     </div>
 </div>
+
+<script>
+// Tab switching
+function switchTab(tabName) {
+    // Hide all tab contents
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+    });
+    
+    // Remove active class from all tab buttons
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Show selected tab content
+    document.getElementById(tabName + '-tab').classList.add('active');
+    
+    // Add active class to clicked button
+    event.target.classList.add('active');
+}
+
+// Profile form editing
+document.getElementById('edit-btn').addEventListener('click', function() {
+    const inputs = document.querySelectorAll('#profile-form input');
+    inputs.forEach(input => {
+        input.disabled = false;
+    });
+    
+    document.getElementById('edit-btn').classList.add('hidden');
+    document.getElementById('save-btn').classList.remove('hidden');
+    document.getElementById('cancel-btn').classList.remove('hidden');
+});
+
+document.getElementById('cancel-btn').addEventListener('click', function() {
+    const inputs = document.querySelectorAll('#profile-form input');
+    inputs.forEach(input => {
+        input.disabled = true;
+        // Reset to original values
+        if (input.name === 'first_name') input.value = '{{ user.first_name }}';
+        if (input.name === 'last_name') input.value = '{{ user.last_name }}';
+        if (input.name === 'username') input.value = '{{ user.username }}';
+        if (input.name === 'email') input.value = '{{ user.email }}';
+    });
+    
+    document.getElementById('edit-btn').classList.remove('hidden');
+    document.getElementById('save-btn').classList.add('hidden');
+    document.getElementById('cancel-btn').classList.add('hidden');
+});
+
+// Save profile changes
+document.getElementById('save-btn').addEventListener('click', function() {
+    const formData = {
+        first_name: document.getElementById('first_name').value,
+        last_name: document.getElementById('last_name').value,
+        username: document.getElementById('username').value,
+        email: document.getElementById('email').value
+    };
+    
+    fetch('{% url "update_profile" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update avatar info
+            const fullName = (data.user.first_name + ' ' + data.user.last_name).trim() || data.user.username;
+            document.querySelector('.avatar-name').textContent = fullName;
+            document.querySelector('.avatar-email').textContent = data.user.email;
+            document.querySelector('.avatar-role').textContent = data.user.username;
+            
+            // Disable inputs
+            const inputs = document.querySelectorAll('#profile-form input');
+            inputs.forEach(input => {
+                input.disabled = true;
+            });
+            
+            // Hide/show buttons
+            document.getElementById('edit-btn').classList.remove('hidden');
+            document.getElementById('save-btn').classList.add('hidden');
+            document.getElementById('cancel-btn').classList.add('hidden');
+            
+            alert('Cập nhật thông tin thành công!');
+        } else {
+            alert('Lỗi: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Đã xảy ra lỗi khi cập nhật thông tin');
+    });
+});
+
+// Change password form
+document.getElementById('password-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = {
+        old_password: document.getElementById('old_password').value,
+        new_password1: document.getElementById('new_password1').value,
+        new_password2: document.getElementById('new_password2').value
+    };
+    
+    fetch('{% url "change_password" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: JSON.stringify(formData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Đổi mật khẩu thành công!');
+            document.getElementById('password-form').reset();
+        } else {
+            alert('Lỗi: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Đã xảy ra lỗi khi đổi mật khẩu');
+    });
+});
+</script>
 
 {% endblock %}

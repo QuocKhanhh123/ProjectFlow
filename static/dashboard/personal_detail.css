@@ -64,6 +64,7 @@ body.light-mode .stat-title {
 body.light-mode .stat-value {
     color: #232846;
 }
+/* Tab Styles */
 .personal-tabs {
     display: flex;
     gap: 8px;
@@ -92,6 +93,14 @@ body.light-mode .tab-btn.active, body.light-mode .tab-btn:hover {
     background: #2563eb;
     color: #fff;
 }
+/* Tab Content */
+.tab-content {
+    display: none;
+}
+.tab-content.active {
+    display: block;
+}
+/* Personal Info Card */
 .personal-info-card {
     background: transparent;
     border: 1.5px solid #232846;
@@ -100,19 +109,17 @@ body.light-mode .tab-btn.active, body.light-mode .tab-btn:hover {
     margin-bottom: 32px;
 }
 .personal-info-card h2 {
-    font-size: 1.3rem;
-    font-weight: 700;
+    font-size: 1.5rem;
+    font-weight: 600;
     color: #fff;
-    margin-bottom: 4px;
+    margin: 0 0 8px 0;
 }
 .personal-info-card p {
     color: #b0b8d1;
-    font-size: 1rem;
-    margin-bottom: 24px;
+    margin: 0 0 24px 0;
 }
 body.light-mode .personal-info-card {
     border: 1.5px solid #e6eaff;
-    background: transparent;
 }
 body.light-mode .personal-info-card h2 {
     color: #232846;
@@ -129,41 +136,43 @@ body.light-mode .personal-info-card p {
     display: flex;
     flex-direction: column;
     align-items: center;
-    min-width: 180px;
-    gap: 8px;
+    gap: 16px;
+    min-width: 200px;
 }
 .avatar-img {
     width: 80px;
     height: 80px;
     border-radius: 50%;
-    background: #e5e7eb;
-    margin-bottom: 8px;
+    background: #3b82f6;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 2.5rem;
-    color: #b0b8d1;
+    font-size: 2rem;
+    color: white;
 }
 .avatar-info {
     text-align: center;
 }
 .avatar-name {
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     font-weight: 600;
     color: #fff;
+    margin-bottom: 4px;
 }
 .avatar-email {
     color: #b0b8d1;
-    font-size: 0.98rem;
+    font-size: 0.9rem;
+    margin-bottom: 4px;
 }
 .avatar-role {
     color: #3b82f6;
-    font-size: 0.98rem;
-    margin-bottom: 2px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 4px;
 }
 .avatar-last {
     color: #6b7280;
-    font-size: 0.95rem;
+    font-size: 0.8rem;
 }
 body.light-mode .avatar-name {
     color: #232846;
@@ -171,62 +180,276 @@ body.light-mode .avatar-name {
 body.light-mode .avatar-email {
     color: #6b7280;
 }
-body.light-mode .avatar-role {
-    color: #2563eb;
+/* Form Styles */
+.personal-form {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
 }
-body.light-mode .avatar-last {
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.form-group label {
+    font-weight: 500;
+    color: #fff;
+    font-size: 0.9rem;
+}
+.form-group input {
+    padding: 12px 16px;
+    border: 1.5px solid #232846;
+    border-radius: 8px;
+    background: transparent;
+    color: #fff;
+    font-size: 1rem;
+    transition: border-color 0.2s;
+}
+.form-group input:focus {
+    outline: none;
+    border-color: #3b82f6;
+}
+.form-group input:disabled {
+    background: rgba(35, 40, 70, 0.3);
+    color: #b0b8d1;
+    cursor: not-allowed;
+}
+body.light-mode .form-group label {
+    color: #232846;
+}
+body.light-mode .form-group input {
+    border: 1.5px solid #e6eaff;
+    background: transparent;
+    color: #232846;
+}
+body.light-mode .form-group input:focus {
+    border-color: #3b82f6;
+}
+body.light-mode .form-group input:disabled {
+    background: rgba(230, 234, 255, 0.3);
     color: #6b7280;
 }
-.personal-form {
+.form-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 8px;
+}
+.edit-btn, .save-btn, .cancel-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+.edit-btn {
+    background: #3b82f6;
+    color: white;
+}
+.edit-btn:hover {
+    background: #2563eb;
+}
+.save-btn {
+    background: #10b981;
+    color: white;
+}
+.save-btn:hover {
+    background: #059669;
+}
+.cancel-btn {
+    background: #6b7280;
+    color: white;
+}
+.cancel-btn:hover {
+    background: #4b5563;
+}
+.hidden {
+    display: none;
+}
+/* Activity Section */
+.activity-section {
+    background: transparent;
+    border: 1.5px solid #232846;
+    border-radius: 12px;
+    padding: 28px 32px 32px 32px;
+    margin-bottom: 32px;
+}
+.activity-section h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #fff;
+    margin: 0 0 24px 0;
+}
+body.light-mode .activity-section {
+    border: 1.5px solid #e6eaff;
+}
+body.light-mode .activity-section h2 {
+    color: #232846;
+}
+.activity-block {
+    margin-bottom: 32px;
+}
+.activity-block:last-child {
+    margin-bottom: 0;
+}
+.activity-block h3 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #fff;
+    margin: 0 0 16px 0;
+}
+body.light-mode .activity-block h3 {
+    color: #232846;
+}
+.activity-list {
     display: flex;
     flex-direction: column;
     gap: 12px;
+}
+.activity-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 16px;
+    background: rgba(35, 40, 70, 0.3);
+    border-radius: 8px;
+    transition: background-color 0.2s;
+}
+.activity-item:hover {
+    background: rgba(35, 40, 70, 0.5);
+}
+body.light-mode .activity-item {
+    background: rgba(230, 234, 255, 0.3);
+}
+body.light-mode .activity-item:hover {
+    background: rgba(230, 234, 255, 0.5);
+}
+.activity-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #3b82f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1rem;
+    flex-shrink: 0;
+}
+.activity-content {
     flex: 1;
 }
-.personal-form label {
-    color: #b0b8d1;
-    font-size: 1rem;
-    margin-bottom: 2px;
-}
-.personal-form input {
-    background: #181c2f;
-    border: none;
-    border-radius: 8px;
-    padding: 10px 16px;
-    color: #fff;
-    font-size: 1rem;
-    margin-bottom: 8px;
-    outline: none;
-    transition: background 0.2s;
-}
-.personal-form input:disabled {
-    color: #b0b8d1;
-}
-body.light-mode .personal-form input {
-    background: #f4f6fa;
-    color: #232846;
-}
-body.light-mode .personal-form input:disabled {
-    color: #6b7280;
-}
-.edit-btn {
-    background: #2563eb;
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    padding: 10px 24px;
+.activity-title {
     font-size: 1rem;
     font-weight: 500;
-    cursor: pointer;
-    margin-top: 8px;
-    align-self: flex-start;
-    transition: background 0.2s;
+    color: #fff;
+    margin-bottom: 4px;
 }
-.edit-btn:hover {
-    background: #1d4ed8;
+.activity-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.8rem;
 }
-@media (max-width: 900px) {
-    .personal-stats { flex-direction: column; gap: 12px; }
-    .personal-info-main { flex-direction: column; gap: 20px; }
-    .personal-info-card { padding: 16px 8px; }
+.activity-project {
+    color: #3b82f6;
+    font-weight: 500;
+}
+.activity-task {
+    color: #b0b8d1;
+}
+.activity-date {
+    color: #6b7280;
+}
+.activity-status {
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 500;
+}
+.status-todo {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+}
+.status-in_progress {
+    background: rgba(245, 158, 11, 0.2);
+    color: #f59e0b;
+}
+.status-done {
+    background: rgba(16, 185, 129, 0.2);
+    color: #10b981;
+}
+body.light-mode .activity-title {
+    color: #232846;
+}
+body.light-mode .activity-task {
+    color: #6b7280;
+}
+.no-activity {
+    text-align: center;
+    color: #6b7280;
+    font-style: italic;
+    padding: 32px;
+}
+/* Password Section */
+.password-section {
+    background: transparent;
+    border: 1.5px solid #232846;
+    border-radius: 12px;
+    padding: 28px 32px 32px 32px;
+    margin-bottom: 32px;
+}
+.password-section h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #fff;
+    margin: 0 0 8px 0;
+}
+.password-section p {
+    color: #b0b8d1;
+    margin: 0 0 24px 0;
+}
+body.light-mode .password-section {
+    border: 1.5px solid #e6eaff;
+}
+body.light-mode .password-section h2 {
+    color: #232846;
+}
+body.light-mode .password-section p {
+    color: #6b7280;
+}
+.password-form {
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+/* Responsive Design */
+@media (max-width: 768px) {
+    .personal-stats {
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .personal-info-main {
+        flex-direction: column;
+        gap: 24px;
+        align-items: center;
+    }
+    
+    .avatar-block {
+        min-width: auto;
+    }
+    
+    .activity-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    
+    .activity-meta {
+        flex-wrap: wrap;
+    }
 }

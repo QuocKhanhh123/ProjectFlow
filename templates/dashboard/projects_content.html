@@ -26,22 +26,22 @@
         <div class="stat-card">
             <div class="stat-title">Tổng số dự án</div>
             <div class="stat-value">{{ total_projects }}</div>
-            <div class="stat-desc">Tổng số dự án bạn đang sở hữu</div>
+            <div class="stat-desc">Tổng số dự án bạn có liên quan</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-title">Dự án sở hữu <i class="fa-solid fa-crown"></i></div>
+            <div class="stat-value">{{ owned_projects_count }}</div>
+            <div class="stat-desc">Dự án bạn là chủ sở hữu</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-title">Dự án tham gia <i class="fa-solid fa-users"></i></div>
+            <div class="stat-value">{{ member_projects_count }}</div>
+            <div class="stat-desc">Dự án bạn tham gia</div>
         </div>
         <div class="stat-card">
             <div class="stat-title">Đang hoạt động <i class="fa-regular fa-clock"></i></div>
             <div class="stat-value">{{ active_projects }}</div>
             <div class="stat-desc">Dự án đang được triển khai</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-title">Hoàn thành <i class="fa-solid fa-check"></i></div>
-            <div class="stat-value">{{ completed_projects }}</div>
-            <div class="stat-desc">Dự án đã hoàn thành</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-title">Tạm dừng <i class="fa-regular fa-circle-info"></i></div>
-            <div class="stat-value">{{ on_hold_projects }}</div>
-            <div class="stat-desc">Dự án đang tạm dừng</div>
         </div>
     </div>
     
@@ -50,36 +50,49 @@
         <button class="tab-btn">Đã lưu trữ</button>
     </div>
     
-    {% if projects %}
+    {% if projects_data %}
         <div class="projects-grid">
-            {% for project in projects %}
+            {% for project_data in projects_data %}
                 <div class="project-card">
                     <div class="project-header">
-                        <h3 class="project-name">{{ project.name }}</h3>
+                        <div class="project-name-section">
+                            <h3 class="project-name">{{ project_data.project.name }}</h3>
+                            <span class="user-role-badge role-{{ project_data.user_role|lower }}">
+                                {% if project_data.user_role == 'OWNER' %}
+                                    <i class="fas fa-crown"></i> Chủ sở hữu
+                                {% elif project_data.user_role == 'ADMIN' %}
+                                    <i class="fas fa-shield-alt"></i> Quản trị viên
+                                {% else %}
+                                    <i class="fas fa-user"></i> Thành viên
+                                {% endif %}
+                            </span>
+                        </div>
+                        {% if project_data.is_owner %}
                         <div class="project-actions">
-                            <a href="{% url 'edit_project' project.id %}" class="action-btn edit-btn" title="Chỉnh sửa">
+                            <a href="{% url 'edit_project' project_data.project.id %}" class="action-btn edit-btn" title="Chỉnh sửa">
                                 <i class="fa-solid fa-edit"></i>
                             </a>
-                            <a href="{% url 'delete_project' project.id %}" class="action-btn delete-btn" title="Xóa">
+                            <a href="{% url 'delete_project' project_data.project.id %}" class="action-btn delete-btn" title="Xóa">
                                 <i class="fa-solid fa-trash"></i>
                             </a>
                         </div>
+                        {% endif %}
                     </div>
-                    <p class="project-description">{{ project.description|truncatechars:100 }}</p>
+                    <p class="project-description">{{ project_data.project.description|truncatechars:100 }}</p>
                     <div class="project-meta">
-                        <span class="project-status status-{{ project.status|lower }}">
-                            {% if project.status == 'ACTIVE' %}
+                        <span class="project-status status-{{ project_data.project.status|lower }}">
+                            {% if project_data.project.status == 'ACTIVE' %}
                                 <i class="fa-solid fa-circle"></i> Đang hoạt động
-                            {% elif project.status == 'COMPLETED' %}
+                            {% elif project_data.project.status == 'COMPLETED' %}
                                 <i class="fa-solid fa-check-circle"></i> Hoàn thành
-                            {% elif project.status == 'ON_HOLD' %}
+                            {% elif project_data.project.status == 'ON_HOLD' %}
                                 <i class="fa-solid fa-pause-circle"></i> Tạm dừng
                             {% endif %}
                         </span>
-                        <span class="project-date">{{ project.created_at|date:"d/m/Y" }}</span>
+                        <span class="project-date">{{ project_data.project.created_at|date:"d/m/Y" }}</span>
                     </div>
                     <div class="project-footer">
-                        <a href="{% url 'view_project_detail' project.id %}" class="view-project-btn">
+                        <a href="{% url 'view_project_detail' project_data.project.id %}" class="view-project-btn">
                             Xem chi tiết <i class="fa-solid fa-arrow-right"></i>
                         </a>
                     </div>
@@ -144,45 +157,42 @@
     margin-bottom: 1rem;
 }
 
-.project-name {
-    color: #2c3e50;
-    margin: 0;
-    font-size: 1.25rem;
+.project-name-section {
     flex: 1;
 }
 
-.project-actions {
-    display: flex;
-    gap: 0.5rem;
+.project-name {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0 0 0.5rem 0;
 }
 
-.action-btn {
-    width: 32px;
-    height: 32px;
-    border-radius: 6px;
-    display: flex;
+.user-role-badge {
+    display: inline-flex;
     align-items: center;
-    justify-content: center;
-    text-decoration: none;
-    transition: all 0.3s ease;
+    gap: 4px;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-.edit-btn {
-    background: #3498db;
-    color: white;
+.user-role-badge.role-owner {
+    background-color: #fbbf24;
+    color: #92400e;
 }
 
-.edit-btn:hover {
-    background: #2980b9;
+.user-role-badge.role-admin {
+    background-color: #3b82f6;
+    color: #1e40af;
 }
 
-.delete-btn {
-    background: #e74c3c;
-    color: white;
-}
-
-.delete-btn:hover {
-    background: #c0392b;
+.user-role-badge.role-member {
+    background-color: #10b981;
+    color: #047857;
 }
 
 .project-description {

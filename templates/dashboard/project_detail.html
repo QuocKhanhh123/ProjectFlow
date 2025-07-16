@@ -1,21 +1,141 @@
 {% extends "dashboard/base.html" %}
 
-{% block container %}
-<h1>abc</h1>
-  <div class="project-desc">abcakc</div>
+{% block include_header %}
+<link rel="stylesheet" href="/static/dashboard/project.css">
+{% endblock %}
 
-  <div class="project-actions">
-    <button class="btn btn-edit">✏️ Chỉnh sửa dự án</button>
-    <button class="btn btn-delete">🗑️</button>
+{% block container %}
+<div class="project-detail-container">
+  <div class="project-header">
+    <div class="project-info">
+      <h1 class="project-title">abc</h1>
+      <div class="project-desc">abcakc</div>
+    </div>
+    <div class="project-actions">
+      <button class="btn btn-edit">✏️ Chỉnh sửa dự án</button>
+      <button class="btn btn-delete">🗑️</button>
+    </div>
   </div>
 
   <div class="tabs">
     <div class="tab active" onclick="showTab('tasks')">Công việc</div>
-    <div class="tab" onclick="showTab('members')">Thành viên</div>
+    <div class="tab" onclick="window.location.href='/dashboard/projects/{{ project.id }}/members/'">Thành viên</div>
   </div>
 
   <div class="tab-content" id="tasks-tab">
-    <p>👉 Đây là phần hiển thị công việc (tạm thời demo)</p>
+    <div class="task-header">
+      <button class="btn btn-add-task" onclick="showCreateTaskModal()">+ Tạo công việc</button>
+    </div>
+    
+    <div class="task-columns">
+      <div class="task-column">
+        <div class="column-header">
+          <h3>Cần làm</h3>
+          <span class="task-count">{{ todo_count }}</span>
+        </div>
+        <div class="column-content" id="todo-column">
+          {% for task in tasks %}
+            {% if task.status == 'TODO' %}
+              <div class="task-card" data-task-id="{{ task.id }}">
+                <div class="task-header">
+                  <h4 class="task-title">{{ task.title }}</h4>
+                  <span class="task-priority priority-{{ task.priority|lower }}">
+                    {% if task.priority == 'HIGH' %}Cao{% elif task.priority == 'MEDIUM' %}Trung bình{% else %}Thấp{% endif %}
+                  </span>
+                </div>
+                {% if task.description %}
+                  <p class="task-description">{{ task.description|truncatewords:20 }}</p>
+                {% endif %}
+                <div class="task-footer">
+                  <div class="task-assignee">
+                    {% if task.assignee %}
+                      <span class="assignee-name">{{ task.assignee.username }}</span>
+                    {% else %}
+                      <span class="assignee-name">Chưa gán</span>
+                    {% endif %}
+                  </div>
+                  <div class="task-date">{{ task.created_at|date:"d/m/Y" }}</div>
+                </div>
+              </div>
+            {% endif %}
+          {% empty %}
+            <div class="no-tasks">Không có công việc nào</div>
+          {% endfor %}
+        </div>
+      </div>
+      
+      <div class="task-column">
+        <div class="column-header">
+          <h3>Đang thực hiện</h3>
+          <span class="task-count">{{ in_progress_count }}</span>
+        </div>
+        <div class="column-content" id="in-progress-column">
+          {% for task in tasks %}
+            {% if task.status == 'IN_PROGRESS' %}
+              <div class="task-card" data-task-id="{{ task.id }}">
+                <div class="task-header">
+                  <h4 class="task-title">{{ task.title }}</h4>
+                  <span class="task-priority priority-{{ task.priority|lower }}">
+                    {% if task.priority == 'HIGH' %}Cao{% elif task.priority == 'MEDIUM' %}Trung bình{% else %}Thấp{% endif %}
+                  </span>
+                </div>
+                {% if task.description %}
+                  <p class="task-description">{{ task.description|truncatewords:20 }}</p>
+                {% endif %}
+                <div class="task-footer">
+                  <div class="task-assignee">
+                    {% if task.assignee %}
+                      <span class="assignee-name">{{ task.assignee.username }}</span>
+                    {% else %}
+                      <span class="assignee-name">Chưa gán</span>
+                    {% endif %}
+                  </div>
+                  <div class="task-date">{{ task.created_at|date:"d/m/Y" }}</div>
+                </div>
+              </div>
+            {% endif %}
+          {% empty %}
+            <div class="no-tasks">Không có công việc nào</div>
+          {% endfor %}
+        </div>
+      </div>
+      
+      <div class="task-column">
+        <div class="column-header">
+          <h3>Hoàn thành</h3>
+          <span class="task-count">{{ done_count }}</span>
+        </div>
+        <div class="column-content" id="done-column">
+          {% for task in tasks %}
+            {% if task.status == 'DONE' %}
+              <div class="task-card" data-task-id="{{ task.id }}">
+                <div class="task-header">
+                  <h4 class="task-title">{{ task.title }}</h4>
+                  <span class="task-priority priority-{{ task.priority|lower }}">
+                    {% if task.priority == 'HIGH' %}Cao{% elif task.priority == 'MEDIUM' %}Trung bình{% else %}Thấp{% endif %}
+                  </span>
+                </div>
+                {% if task.description %}
+                  <p class="task-description">{{ task.description|truncatewords:20 }}</p>
+                {% endif %}
+                <div class="task-footer">
+                  <div class="task-assignee">
+                    {% if task.assignee %}
+                      <span class="assignee-name">{{ task.assignee.username }}</span>
+                    {% else %}
+                      <span class="assignee-name">Chưa gán</span>
+                    {% endif %}
+                  </div>
+                  <div class="task-date">{{ task.created_at|date:"d/m/Y" }}</div>
+                </div>
+              </div>
+            {% endif %}
+          {% empty %}
+            <div class="no-tasks">Không có công việc nào</div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="tab-content hidden" id="members-tab">
@@ -36,6 +156,58 @@
       </div>
     </div>
   </div>
+  
+  <!-- Modal Tạo công việc -->
+  <div id="createTaskModal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Tạo công việc mới</h2>
+        <button class="modal-close" onclick="hideCreateTaskModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc">Điền thông tin để tạo công việc mới.</p>
+        
+        <form id="createTaskForm">
+          {% csrf_token %}
+          <div class="form-group">
+            <label for="taskTitle">Tiêu đề</label>
+            <input type="text" id="taskTitle" name="taskTitle" placeholder="Nhập tiêu đề công việc" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="taskDescription">Mô tả</label>
+            <textarea id="taskDescription" name="taskDescription" placeholder="Mô tả chi tiết công việc" rows="4"></textarea>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label for="taskStatus">Trạng thái</label>
+              <select id="taskStatus" name="taskStatus">
+                <option value="TODO">Cần làm</option>
+                <option value="IN_PROGRESS">Đang thực hiện</option>
+                <option value="DONE">Hoàn thành</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label for="taskPriority">Độ ưu tiên</label>
+              <select id="taskPriority" name="taskPriority">
+                <option value="LOW">Thấp</option>
+                <option value="MEDIUM">Trung bình</option>
+                <option value="HIGH">Cao</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="form-actions">
+            <button type="button" class="btn btn-cancel" onclick="hideCreateTaskModal()">Hủy</button>
+            <button type="submit" class="btn btn-create">Tạo công việc</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
 
   <script>
     function showTab(tab) {
@@ -55,6 +227,210 @@
         tabs[1].classList.add('active');
       }
     }
+
+    function showCreateTaskModal() {
+      document.getElementById('createTaskModal').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function hideCreateTaskModal() {
+      document.getElementById('createTaskModal').classList.add('hidden');
+      document.body.style.overflow = 'auto';
+      document.getElementById('createTaskForm').reset();
+    }
+
+    // Đóng modal khi click bên ngoài
+    document.addEventListener('click', function(e) {
+      const modal = document.getElementById('createTaskModal');
+      if (e.target === modal) {
+        hideCreateTaskModal();
+      }
+    });
+
+    // Xử lý form submit
+    document.getElementById('createTaskForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const formData = new FormData(this);
+      const taskData = {
+        title: formData.get('taskTitle'),
+        description: formData.get('taskDescription'),
+        status: formData.get('taskStatus'),
+        priority: formData.get('taskPriority')
+      };
+      
+      // Send POST request to create task
+      fetch(`/dashboard/projects/{{ project.id }}/tasks/create/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify(taskData)
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // Task created successfully
+          console.log('Task created:', data.task);
+          hideCreateTaskModal();
+          
+          // Show success message
+          showNotification('Công việc đã được tạo thành công!', 'success');
+          
+          // Add task to the appropriate column
+          addTaskToColumn(data.task);
+          
+          // Update task counts
+          updateTaskCounts();
+        } else {
+          // Handle error
+          showNotification(data.error || 'Có lỗi xảy ra khi tạo công việc', 'error');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        showNotification('Có lỗi xảy ra khi tạo công việc', 'error');
+      });
+    });
+
+    // Function to get CSRF token
+    function getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          const cookie = cookies[i].trim();
+          if (cookie.substring(0, name.length + 1) === (name + '=')) {
+            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+            break;
+          }
+        }
+      }
+      return cookieValue;
+    }
+
+    // Function to add task to appropriate column
+    function addTaskToColumn(task) {
+      const columnMap = {
+        'TODO': 'todo-column',
+        'IN_PROGRESS': 'in-progress-column',
+        'DONE': 'done-column'
+      };
+      
+      const priorityMap = {
+        'HIGH': 'Cao',
+        'MEDIUM': 'Trung bình',
+        'LOW': 'Thấp'
+      };
+      
+      const columnId = columnMap[task.status];
+      const column = document.getElementById(columnId);
+      
+      if (column) {
+        // Remove "no tasks" message if it exists
+        const noTasksMsg = column.querySelector('.no-tasks');
+        if (noTasksMsg) {
+          noTasksMsg.remove();
+        }
+        
+        // Create task card HTML
+        const taskCard = document.createElement('div');
+        taskCard.className = 'task-card';
+        taskCard.setAttribute('data-task-id', task.id);
+        
+        const taskDate = new Date(task.created_at).toLocaleDateString('vi-VN');
+        
+        taskCard.innerHTML = `
+          <div class="task-header">
+            <h4 class="task-title">${task.title}</h4>
+            <span class="task-priority priority-${task.priority.toLowerCase()}">
+              ${priorityMap[task.priority]}
+            </span>
+          </div>
+          ${task.description ? `<p class="task-description">${task.description}</p>` : ''}
+          <div class="task-footer">
+            <div class="task-assignee">
+              <span class="assignee-name">${task.assignee || 'Chưa gán'}</span>
+            </div>
+            <div class="task-date">${taskDate}</div>
+          </div>
+        `;
+        
+        // Add task card to column
+        column.appendChild(taskCard);
+      }
+    }
+
+    // Function to update task counts
+    function updateTaskCounts() {
+      const todoCount = document.querySelectorAll('#todo-column .task-card').length;
+      const inProgressCount = document.querySelectorAll('#in-progress-column .task-card').length;
+      const doneCount = document.querySelectorAll('#done-column .task-card').length;
+      
+      // Update count displays
+      const todoCountEl = document.querySelector('.task-column:nth-child(1) .task-count');
+      const inProgressCountEl = document.querySelector('.task-column:nth-child(2) .task-count');
+      const doneCountEl = document.querySelector('.task-column:nth-child(3) .task-count');
+      
+      if (todoCountEl) todoCountEl.textContent = todoCount;
+      if (inProgressCountEl) inProgressCountEl.textContent = inProgressCount;
+      if (doneCountEl) doneCountEl.textContent = doneCount;
+    }
+
+    // Add click event listeners to task cards
+    document.addEventListener('DOMContentLoaded', function() {
+      const taskCards = document.querySelectorAll('.task-card');
+      taskCards.forEach(card => {
+        card.addEventListener('click', function() {
+          const taskId = this.getAttribute('data-task-id');
+          if (taskId) {
+            window.location.href = `/dashboard/projects/{{ project.id }}/tasks/${taskId}/`;
+          }
+        });
+      });
+    });
+
+    // Function to show notification
+    function showNotification(message, type) {
+      const notification = document.createElement('div');
+      notification.className = `notification ${type}`;
+      notification.textContent = message;
+      notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 20px;
+        border-radius: 6px;
+        color: white;
+        font-weight: 500;
+        z-index: 10000;
+        animation: slideIn 0.3s ease-out;
+        ${type === 'success' ? 'background: #059669;' : 'background: #dc2626;'}
+      `;
+      
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        notification.remove();
+      }, 3000);
+    }
+
+    // Add CSS for notification animation
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes slideIn {
+        from {
+          transform: translateX(100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+    `;
+    document.head.appendChild(style);
   </script>
 
 
