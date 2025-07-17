@@ -15,20 +15,37 @@
 </head>
 
 <body class="dark-mode">
-    <div class="sidebar">
-        <div class="sidebar-title">Project Flow</div>
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-title">Project Flow</div>
+            <button class="sidebar-toggle" onclick="toggleSidebar()" title="Thu gọn sidebar">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
         <ul class="sidebar-menu">
             <li class="{% if request.path == '/dashboard/overview/' %}active{% endif %}">
-                <a href="{% url 'view_overview' %}"><span>📋</span> Tổng quan</a>
+                <a href="{% url 'view_overview' %}" title="Tổng quan">
+                    <span class="menu-icon">📋</span>
+                    <span class="menu-text">Tổng quan</span>
+                </a>
             </li>
             <li class="{% if request.path == '/dashboard/projects/' %}active{% endif %}">
-                <a href="{% url 'view_projects' %}"><span>📁</span> Dự án</a>
+                <a href="{% url 'view_projects' %}" title="Dự án">
+                    <span class="menu-icon">📁</span>
+                    <span class="menu-text">Dự án</span>
+                </a>
             </li>
             <li class="{% if request.path == '/dashboard/members/' %}active{% endif %}">
-                <a href="{% url 'view_all_members' %}"><span>👥</span> Thành viên</a>
+                <a href="{% url 'view_all_members' %}" title="Thành viên">
+                    <span class="menu-icon">👥</span>
+                    <span class="menu-text">Thành viên</span>
+                </a>
             </li>
             <li class="{% if request.path == '/dashbooard/settings/' %}active{% endif %}">
-                <a href="{% url 'view_settings' %}"><span>⚙️</span> Cài đặt</a>
+                <a href="{% url 'view_settings' %}" title="Cài đặt">
+                    <span class="menu-icon">⚙️</span>
+                    <span class="menu-text">Cài đặt</span>
+                </a>
             </li> 
         </ul>
     </div>
@@ -40,8 +57,8 @@
                 </button>
             </div>
             <div class="header-center">
-                <input type="text" class="search-bar" placeholder="Tìm kiếm dự án, công việc...">
-                <button class="search-btn"><i class="fa-solid fa-magnifying-glass"></i></button>
+                <input type="text" id="search-input" class="search-bar" placeholder="Tìm kiếm dự án, công việc...">
+                <button class="search-btn" onclick="performSearch()"><i class="fa-solid fa-magnifying-glass"></i></button>
             </div>
             <div class="header-right">
                 <button class="user-btn" onclick="toggleUserMenu()"><i class="fa-solid fa-user"></i></button>

@@ -466,6 +466,28 @@
     background: #b91c1c;
 }
 
+/* Styling riêng cho nút xóa thành viên trong modal */
+.modal-content .btn-delete {
+    background: #dc2626;
+    color: #ffffff;
+    padding: 10px 16px;
+    border: 1px solid #dc2626;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.2s;
+    width: auto;
+    height: auto;
+    white-space: nowrap;
+    min-width: fit-content;
+}
+
+.modal-content .btn-delete:hover {
+    background: #b91c1c;
+    border-color: #b91c1c;
+}
+
 .tabs {
     display: flex;
     border-bottom: 1px solid #e5e7eb;
@@ -982,6 +1004,7 @@
 }
 
 .btn-cancel:hover {
+    color: #1f2937;
     background: #f3f4f6;
     border-color: #9ca3af;
 }
@@ -1018,7 +1041,8 @@
     }
     
     .btn-cancel,
-    .btn-create {
+    .btn-create,
+    .modal-content .btn-delete {
         width: 100%;
     }
     

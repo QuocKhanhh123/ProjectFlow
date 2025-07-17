@@ -561,3 +561,141 @@
 .btn-create:hover {
     background: #005a9f;
 }
+
+/* Light Mode Styles for Overview */
+body.light-mode #overview-content {
+    background: #f8fafc;
+    color: #1e293b;
+}
+
+body.light-mode .overview-header h1 {
+    color: #1e293b;
+}
+
+body.light-mode .overview-header p {
+    color: #64748b;
+}
+
+body.light-mode .stat-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    color: #1e293b;
+}
+
+body.light-mode .stat-card:hover {
+    border-color: #3b82f6;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+}
+
+body.light-mode .stat-content h3 {
+    color: #1e293b;
+}
+
+body.light-mode .stat-content p {
+    color: #64748b;
+}
+
+body.light-mode .stat-content small {
+    color: #94a3b8;
+}
+
+body.light-mode .chart-container {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+}
+
+body.light-mode .chart-header h3 {
+    color: #1e293b;
+}
+
+body.light-mode .activity-stats h3 {
+    color: #1e293b;
+}
+
+body.light-mode .activity-item {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+}
+
+body.light-mode .activity-number {
+    color: #3b82f6;
+}
+
+body.light-mode .activity-label {
+    color: #64748b;
+}
+
+body.light-mode .recent-projects h3 {
+    color: #1e293b;
+}
+
+body.light-mode .project-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+}
+
+body.light-mode .project-card:hover {
+    border-color: #3b82f6;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+}
+
+body.light-mode .project-card h4 {
+    color: #1e293b;
+}
+
+body.light-mode .project-description {
+    color: #64748b;
+}
+
+body.light-mode .project-date {
+    color: #94a3b8;
+}
+
+body.light-mode .view-project-btn {
+    color: #3b82f6;
+}
+
+body.light-mode .view-project-btn:hover {
+    color: #2563eb;
+}
+
+body.light-mode .progress-section h3 {
+    color: #1e293b;
+}
+
+body.light-mode .progress-item {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+}
+
+body.light-mode .project-name {
+    color: #1e293b;
+}
+
+body.light-mode .progress-percentage {
+    color: #64748b;
+}
+
+body.light-mode .progress-bar {
+    background: #f1f5f9;
+}
+
+body.light-mode .progress-details small {
+    color: #94a3b8;
+}
+
+body.light-mode .quick-actions h3 {
+    color: #1e293b;
+}
+
+body.light-mode .action-btn {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    color: #64748b;
+}
+
+body.light-mode .action-btn:hover {
+    background: #f8fafc;
+    border-color: #3b82f6;
+    color: #3b82f6;
+}

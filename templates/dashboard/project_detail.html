@@ -13,8 +13,8 @@
     </div>
     <div class="project-actions">
       {% if can_edit %}
-        <button class="btn btn-edit">✏️ Chỉnh sửa dự án</button>
-        <button class="btn btn-delete">🗑️</button>
+        <button class="btn btn-edit" onclick="showEditProjectModal()">✏️ Chỉnh sửa dự án</button>
+        <button class="btn btn-delete" onclick="showDeleteProjectModal()">🗑️</button>
       {% endif %}
     </div>
   </div>
@@ -144,29 +144,37 @@
     <div class="member-header">
       <input class="member-search" placeholder="Tìm kiếm thành viên...">
       {% if can_edit %}
-        <button class="btn-add-member">👤+ Thêm thành viên</button>
+        <button class="btn-add-member" onclick="showAddMemberModal()">👤+ Thêm thành viên</button>
       {% endif %}
     </div>
 
     <div class="member-list">
       <h3>Thành viên dự án ({{ members|length }})</h3>
-      {% for member in members %}
-        <div class="member-item">
-          <div class="avatar"></div>
-          <div class="member-info">
-            <div>
-              <strong>{{ member.user.username }}</strong>
-              <span class="role-badge">
-                {% if member.role == 'OWNER' %}Chủ sở hữu{% elif member.role == 'ADMIN' %}Quản trị viên{% else %}Thành viên{% endif %}
-              </span>
+      <div id="membersList">
+        {% for member in members %}
+          <div class="member-item" data-member-id="{{ member.id }}">
+            <div class="avatar"></div>
+            <div class="member-info">
+              <div>
+                <strong>{{ member.user.username }}</strong>
+                <span class="role-badge">
+                  {% if member.role == 'OWNER' %}Chủ sở hữu{% elif member.role == 'ADMIN' %}Quản trị viên{% else %}Thành viên{% endif %}
+                </span>
+              </div>
+              <div class="email">{{ member.user.email }}</div>
+              <div class="joined-date">Tham gia: {{ member.joined_at|date:"d/m/Y" }}</div>
             </div>
-            <div class="email">{{ member.user.email }}</div>
-            <div class="joined-date">Tham gia: {{ member.joined_at|date:"d/m/Y" }}</div>
+            {% if can_edit and member.role != 'OWNER' %}
+              <div class="member-actions">
+                <button class="btn btn-sm btn-outline" data-member-id="{{ member.id }}" data-role="{{ member.role }}" onclick="updateMemberRole('{{ member.id }}', '{{ member.role }}')">Đổi vai trò</button>
+                <button class="btn btn-sm btn-danger" data-member-id="{{ member.id }}" data-username="{{ member.user.username }}" onclick="removeMember('{{ member.id }}', '{{ member.user.username }}')">Xóa</button>
+              </div>
+            {% endif %}
           </div>
-        </div>
-      {% empty %}
-        <div class="no-members">Không có thành viên nào</div>
-      {% endfor %}
+        {% empty %}
+          <div class="no-members">Không có thành viên nào</div>
+        {% endfor %}
+      </div>
     </div>
   </div>
   
@@ -220,9 +228,148 @@
       </div>
     </div>
   </div>
+
+  <!-- Modal Chỉnh sửa dự án -->
+  <div id="editProjectModal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Chỉnh sửa dự án</h2>
+        <button class="modal-close" onclick="hideEditProjectModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <form id="editProjectForm">
+          {% csrf_token %}
+          <div class="form-group">
+            <label for="projectName">Tên dự án</label>
+            <input type="text" id="projectName" name="name" value="{{ project.name }}" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="projectDescription">Mô tả</label>
+            <textarea id="projectDescription" name="description" rows="4" required>{{ project.description }}</textarea>
+          </div>
+          
+          <div class="form-group">
+            <label for="projectStatus">Trạng thái</label>
+            <select id="projectStatus" name="status">
+              <option value="ACTIVE" {% if project.status == 'ACTIVE' %}selected{% endif %}>Đang hoạt động</option>
+              <option value="COMPLETED" {% if project.status == 'COMPLETED' %}selected{% endif %}>Hoàn thành</option>
+              <option value="ON_HOLD" {% if project.status == 'ON_HOLD' %}selected{% endif %}>Tạm dừng</option>
+            </select>
+          </div>
+          
+          <div class="form-actions">
+            <button type="button" class="btn btn-cancel" onclick="hideEditProjectModal()">Hủy</button>
+            <button type="submit" class="btn btn-create">Lưu thay đổi</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Xóa dự án -->
+  <div id="deleteProjectModal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Xác nhận xóa dự án</h2>
+        <button class="modal-close" onclick="hideDeleteProjectModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <p>Bạn có chắc chắn muốn xóa dự án <strong>"{{ project.name }}"</strong>?</p>
+        <p style="color: #ef4444; font-size: 0.9rem;">⚠️ Hành động này không thể hoàn tác. Tất cả công việc và dữ liệu liên quan sẽ bị xóa vĩnh viễn.</p>
+        
+        <div class="form-actions">
+          <button type="button" class="btn btn-cancel" onclick="hideDeleteProjectModal()">Hủy</button>
+          <button type="button" class="btn btn-delete" onclick="confirmDeleteProject()">Xóa dự án</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Thêm thành viên -->
+  <div id="addMemberModal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Thêm thành viên</h2>
+        <button class="modal-close" onclick="hideAddMemberModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <form id="addMemberForm">
+          {% csrf_token %}
+          <div class="form-group">
+            <label for="memberEmail">Email thành viên</label>
+            <input type="email" id="memberEmail" name="email" placeholder="Nhập email của thành viên" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="memberRole">Vai trò</label>
+            <select id="memberRole" name="role">
+              <option value="MEMBER">Thành viên</option>
+              <option value="ADMIN">Quản trị viên</option>
+            </select>
+          </div>
+          
+          <div class="form-actions">
+            <button type="button" class="btn btn-cancel" onclick="hideAddMemberModal()">Hủy</button>
+            <button type="submit" class="btn btn-create">Thêm thành viên</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Đổi vai trò -->
+  <div id="changeRoleModal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Đổi vai trò thành viên</h2>
+        <button class="modal-close" onclick="hideChangeRoleModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc">Bạn muốn thay đổi vai trò của <strong id="roleMemberName"></strong>?</p>
+        
+        <form id="changeRoleForm">
+          {% csrf_token %}
+          <div class="form-group">
+            <label for="newRole">Vai trò mới</label>
+            <select id="newRole" name="role">
+              <option value="MEMBER">Thành viên</option>
+              <option value="ADMIN">Quản trị viên</option>
+            </select>
+          </div>
+          
+          <div class="form-actions">
+            <button type="button" class="btn btn-cancel" onclick="hideChangeRoleModal()">Hủy</button>
+            <button type="submit" class="btn btn-create">Cập nhật vai trò</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Xóa thành viên -->
+  <div id="removeMemberModal" class="modal-overlay hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Xác nhận xóa thành viên</h2>
+        <button class="modal-close" onclick="hideRemoveMemberModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc">Bạn có chắc chắn muốn xóa thành viên <strong id="removeMemberName"></strong> khỏi dự án?</p>
+        <p style="color: #ef4444; font-size: 0.9rem; margin-top: 12px;">
+          ⚠️ Thành viên sẽ mất quyền truy cập vào dự án và không thể xem các công việc đã được giao.
+        </p>
+        
+        <div class="form-actions">
+          <button type="button" class="btn btn-cancel" onclick="hideRemoveMemberModal()">Hủy</button>
+          <button type="button" class="btn btn-delete" onclick="confirmRemoveMember()">Xóa thành viên</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
-  <script>
+<script>
     function showTab(tab) {
       const taskTab = document.getElementById('tasks-tab');
       const memberTab = document.getElementById('members-tab');
@@ -241,6 +388,7 @@
       }
     }
 
+    // Task modal functions
     function showCreateTaskModal() {
       document.getElementById('createTaskModal').classList.remove('hidden');
       document.body.style.overflow = 'hidden';
@@ -252,15 +400,357 @@
       document.getElementById('createTaskForm').reset();
     }
 
-    // Đóng modal khi click bên ngoài
+    // Project modal functions
+    function showEditProjectModal() {
+      document.getElementById('editProjectModal').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function hideEditProjectModal() {
+      document.getElementById('editProjectModal').classList.add('hidden');
+      document.body.style.overflow = 'auto';
+    }
+
+    function showDeleteProjectModal() {
+      document.getElementById('deleteProjectModal').classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function hideDeleteProjectModal() {
+      document.getElementById('deleteProjectModal').classList.add('hidden');
+      document.body.style.overflow = 'auto';
+    }
+
+    // Member modal functions
+function showAddMemberModal() {
+  document.getElementById('addMemberModal').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+
+function hideAddMemberModal() {
+  document.getElementById('addMemberModal').classList.add('hidden');
+  document.body.style.overflow = 'auto';
+  document.getElementById('addMemberForm').reset();
+}
+
+// Change role modal functions
+function showChangeRoleModal() {
+  document.getElementById('changeRoleModal').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+
+function hideChangeRoleModal() {
+  document.getElementById('changeRoleModal').classList.add('hidden');
+  document.body.style.overflow = 'auto';
+  document.getElementById('changeRoleForm').reset();
+}
+
+// Remove member modal functions
+function showRemoveMemberModal() {
+  document.getElementById('removeMemberModal').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+
+function hideRemoveMemberModal() {
+  document.getElementById('removeMemberModal').classList.add('hidden');
+  document.body.style.overflow = 'auto';
+}
+
+    // Close modals when clicking outside
     document.addEventListener('click', function(e) {
-      const modal = document.getElementById('createTaskModal');
-      if (e.target === modal) {
-        hideCreateTaskModal();
-      }
+      const modals = ['createTaskModal', 'editProjectModal', 'deleteProjectModal', 'addMemberModal', 'changeRoleModal', 'removeMemberModal'];
+      modals.forEach(modalId => {
+        const modal = document.getElementById(modalId);
+        if (e.target === modal) {
+          modal.classList.add('hidden');
+          document.body.style.overflow = 'auto';
+        }
+      });
     });
 
-    // Xử lý form submit
+    // Edit Project Form
+    document.getElementById('editProjectForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const formData = new FormData(this);
+      const projectData = {
+        name: formData.get('name'),
+        description: formData.get('description'),
+        status: formData.get('status')
+      };
+      
+      fetch(`/dashboard/projects/{{ project.id }}/edit/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: new URLSearchParams(projectData)
+      })
+      .then(response => {
+        if (response.ok) {
+          // Success - update the page content
+          hideEditProjectModal();
+          showNotification('Dự án đã được cập nhật thành công!', 'success');
+          
+          // Update project title and description on the page
+          updateProjectDisplay(projectData);
+        } else {
+          return response.text().then(text => {
+            showNotification('Có lỗi xảy ra khi cập nhật dự án', 'error');
+          });
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        showNotification('Có lỗi xảy ra khi cập nhật dự án', 'error');
+      });
+    });
+
+    // Delete Project
+    function confirmDeleteProject() {
+      fetch(`/dashboard/projects/{{ project.id }}/delete/`, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': getCookie('csrftoken')
+        }
+      })
+      .then(response => {
+        if (response.redirected) {
+          window.location.href = response.url;
+        } else {
+          return response.text();
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        showNotification('Có lỗi xảy ra khi xóa dự án', 'error');
+      });
+    }
+
+    // Add Member Form
+    document.getElementById('addMemberForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const formData = new FormData(this);
+      const memberData = {
+        email: formData.get('email'),
+        role: formData.get('role')
+      };
+      
+      fetch(`/dashboard/projects/{{ project.id }}/members/invite/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify(memberData)
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          hideAddMemberModal();
+          showNotification(data.message, 'success');
+          // Add member to the list
+          addMemberToList(data.member);
+        } else {
+          showNotification(data.error || 'Có lỗi xảy ra khi thêm thành viên', 'error');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        showNotification('Có lỗi xảy ra khi thêm thành viên', 'error');
+      });
+    });
+
+    // Change Role Form
+    document.getElementById('changeRoleForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      if (!currentMemberId) {
+        showNotification('Có lỗi xảy ra khi cập nhật vai trò', 'error');
+        return;
+      }
+      
+      const formData = new FormData(this);
+      const newRole = formData.get('role');
+      const roleText = newRole === 'ADMIN' ? 'Quản trị viên' : 'Thành viên';
+      
+      fetch(`/dashboard/projects/{{ project.id }}/members/${currentMemberId}/update-role/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({ role: newRole })
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          hideChangeRoleModal();
+          showNotification(data.message, 'success');
+          
+          // Update role badge
+          const memberItem = document.querySelector(`[data-member-id="${currentMemberId}"]`);
+          if (memberItem) {
+            const roleBadge = memberItem.querySelector('.role-badge');
+            roleBadge.textContent = roleText;
+            
+            // Update button
+            const roleButton = memberItem.querySelector('.btn-outline');
+            roleButton.setAttribute('onclick', `updateMemberRole('${currentMemberId}', '${newRole}')`);
+          }
+          
+          // Reset variables
+          currentMemberId = null;
+          currentMemberName = null;
+        } else {
+          showNotification(data.error || 'Có lỗi xảy ra khi cập nhật vai trò', 'error');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        showNotification('Có lỗi xảy ra khi cập nhật vai trò', 'error');
+      });
+    });
+
+    // Remove Member
+    let currentRemoveMemberId = null;
+    let currentRemoveMemberName = null;
+    
+    function removeMember(memberId, username) {
+      currentRemoveMemberId = memberId;
+      currentRemoveMemberName = username;
+      
+      // Set member name in modal
+      document.getElementById('removeMemberName').textContent = username;
+      
+      // Show modal
+      showRemoveMemberModal();
+    }
+    
+    function confirmRemoveMember() {
+      if (!currentRemoveMemberId) {
+        showNotification('Có lỗi xảy ra khi xóa thành viên', 'error');
+        return;
+      }
+      
+      fetch(`/dashboard/projects/{{ project.id }}/members/${currentRemoveMemberId}/remove/`, {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': getCookie('csrftoken')
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          hideRemoveMemberModal();
+          showNotification(data.message, 'success');
+          // Remove member from the list
+          const memberItem = document.querySelector(`[data-member-id="${currentRemoveMemberId}"]`);
+          if (memberItem) {
+            memberItem.remove();
+          }
+          updateMemberCount();
+          
+          // Reset variables
+          currentRemoveMemberId = null;
+          currentRemoveMemberName = null;
+        } else {
+          showNotification(data.error || 'Có lỗi xảy ra khi xóa thành viên', 'error');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        showNotification('Có lỗi xảy ra khi xóa thành viên', 'error');
+      });
+    }
+
+            // Update Member Role
+        let currentMemberId = null;
+        let currentMemberName = null;
+        
+        function updateMemberRole(memberId, currentRole) {
+          currentMemberId = memberId;
+          
+          // Get member name from DOM
+          const memberItem = document.querySelector(`[data-member-id="${memberId}"]`);
+          currentMemberName = memberItem ? memberItem.querySelector('strong').textContent : 'thành viên';
+          
+          // Set member name in modal
+          document.getElementById('roleMemberName').textContent = currentMemberName;
+          
+          // Set current role as opposite in select
+          const newRoleSelect = document.getElementById('newRole');
+          const newRole = currentRole === 'ADMIN' ? 'MEMBER' : 'ADMIN';
+          newRoleSelect.value = newRole;
+          
+          // Show modal
+          showChangeRoleModal();
+        }
+
+    // Helper functions
+    function updateProjectDisplay(projectData) {
+      // Update project title
+      const projectTitle = document.querySelector('.project-title');
+      if (projectTitle) {
+        projectTitle.textContent = projectData.name;
+      }
+      
+      // Update project description
+      const projectDesc = document.querySelector('.project-desc');
+      if (projectDesc) {
+        projectDesc.textContent = projectData.description;
+      }
+      
+      // Update page title
+      document.title = `${projectData.name} - TaskFlow`;
+    }
+
+    function addMemberToList(member) {
+      const membersList = document.getElementById('membersList');
+      const noMembers = membersList.querySelector('.no-members');
+      
+      if (noMembers) {
+        noMembers.remove();
+      }
+      
+      const memberItem = document.createElement('div');
+      memberItem.className = 'member-item';
+      memberItem.setAttribute('data-member-id', member.id);
+      
+      const joinedDate = new Date(member.joined_at).toLocaleDateString('vi-VN');
+      const roleText = member.role === 'ADMIN' ? 'Quản trị viên' : 'Thành viên';
+      
+              memberItem.innerHTML = `
+          <div class="avatar"></div>
+          <div class="member-info">
+            <div>
+              <strong>${member.username}</strong>
+              <span class="role-badge">${roleText}</span>
+            </div>
+            <div class="email">${member.email}</div>
+            <div class="joined-date">Tham gia: ${joinedDate}</div>
+          </div>
+          <div class="member-actions">
+            <button class="btn btn-sm btn-outline" onclick="updateMemberRole('${member.id}', '${member.role}')">Đổi vai trò</button>
+            <button class="btn btn-sm btn-danger" onclick="removeMember('${member.id}', '${member.username}')">Xóa</button>
+          </div>
+        `;
+      
+      membersList.appendChild(memberItem);
+      updateMemberCount();
+    }
+
+    function updateMemberCount() {
+      const memberCount = document.querySelectorAll('#membersList .member-item').length;
+      const memberCountEl = document.querySelector('.member-list h3');
+      if (memberCountEl) {
+        memberCountEl.textContent = `Thành viên dự án (${memberCount})`;
+      }
+    }
+
+    // Task creation form (existing code)
     document.getElementById('createTaskForm').addEventListener('submit', function(e) {
       e.preventDefault();
       
@@ -272,7 +762,6 @@
         priority: formData.get('taskPriority')
       };
       
-      // Send POST request to create task
       fetch(`/dashboard/projects/{{ project.id }}/tasks/create/`, {
         method: 'POST',
         headers: {
@@ -284,19 +773,11 @@
       .then(response => response.json())
       .then(data => {
         if (data.success) {
-          // Task created successfully
           hideCreateTaskModal();
-          
-          // Show success message
           showNotification('Công việc đã được tạo thành công!', 'success');
-          
-          // Add task to the appropriate column
           addTaskToColumn(data.task);
-          
-          // Update task counts
           updateTaskCounts();
         } else {
-          // Handle error
           showNotification(data.error || 'Có lỗi xảy ra khi tạo công việc', 'error');
         }
       })
@@ -340,13 +821,11 @@
       const column = document.getElementById(columnId);
       
       if (column) {
-        // Remove "no tasks" message if it exists
         const noTasksMsg = column.querySelector('.no-tasks');
         if (noTasksMsg) {
           noTasksMsg.remove();
         }
         
-        // Create task card HTML
         const taskCard = document.createElement('div');
         taskCard.className = 'task-card';
         taskCard.setAttribute('data-task-id', task.id);
@@ -369,8 +848,15 @@
           </div>
         `;
         
-        // Add task card to column
         column.appendChild(taskCard);
+        
+        // Add click event to new task card
+        taskCard.addEventListener('click', function() {
+          const taskId = this.getAttribute('data-task-id');
+          if (taskId) {
+            window.location.href = `/dashboard/projects/{{ project.id }}/tasks/${taskId}/`;
+          }
+        });
       }
     }
 
@@ -380,7 +866,6 @@
       const inProgressCount = document.querySelectorAll('#in-progress-column .task-card').length;
       const doneCount = document.querySelectorAll('#done-column .task-card').length;
       
-      // Update count displays
       const todoCountEl = document.querySelector('.task-column:nth-child(1) .task-count');
       const inProgressCountEl = document.querySelector('.task-column:nth-child(2) .task-count');
       const doneCountEl = document.querySelector('.task-column:nth-child(3) .task-count');
@@ -440,6 +925,46 @@
           transform: translateX(0);
           opacity: 1;
         }
+      }
+      
+      .member-actions {
+        display: flex;
+        gap: 8px;
+        margin-left: auto;
+      }
+      
+      .member-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px;
+        border-bottom: 1px solid #374151;
+      }
+      
+      .btn-sm {
+        padding: 4px 8px;
+        font-size: 0.75rem;
+      }
+      
+      .btn-outline {
+        background: transparent;
+        border: 1px solid #3b82f6;
+        color: #3b82f6;
+      }
+      
+      .btn-outline:hover {
+        background: #3b82f6;
+        color: white;
+      }
+      
+      .btn-danger {
+        background: #ef4444;
+        color: white;
+        border: 1px solid #ef4444;
+      }
+      
+      .btn-danger:hover {
+        background: #dc2626;
       }
     `;
     document.head.appendChild(style);

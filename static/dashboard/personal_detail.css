@@ -200,6 +200,13 @@
     color: #b0b8d1;
     cursor: not-allowed;
 }
+
+.form-group input[readonly] {
+    background: #1f2937 !important;
+    color: #6b7280 !important;
+    cursor: not-allowed;
+    border-color: #374151 !important;
+}
 .form-actions {
     display: flex;
     gap: 12px;

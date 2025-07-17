@@ -5,6 +5,7 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from django.utils import timezone
 from datetime import timedelta
+from django.db.models import Q
 import json
 from .models import Project, Task, ProjectStatus, Comment, ProjectMember, ProjectInvitation, MemberRole, InvitationStatus
 from .forms import ProjectForm
@@ -1213,3 +1214,79 @@ def change_password(request):
             'success': False,
             'error': f'Đã xảy ra lỗi: {str(e)}'
         }, status=500)
+
+@login_required(login_url="login")
+def search_view(request):
+    """
+    Search view để tìm kiếm dự án và công việc
+    """
+    query = request.GET.get('q', '').strip()
+    
+    if not query:
+        return JsonResponse({
+            'success': False,
+            'error': 'Vui lòng nhập từ khóa tìm kiếm'
+        })
+    
+    user = request.user
+    
+    # Tìm kiếm dự án mà user có quyền truy cập
+    user_projects = []
+    
+    # Dự án sở hữu
+    owned_projects = Project.objects.filter(owner=user)
+    user_projects.extend(owned_projects)
+    
+    # Dự án tham gia
+    member_projects = ProjectMember.objects.filter(user=user).select_related('project')
+    for member_project in member_projects:
+        if member_project.project not in user_projects:
+            user_projects.append(member_project.project)
+    
+    # Lọc dự án theo từ khóa
+    project_ids = [p.id for p in user_projects]
+    projects = Project.objects.filter(
+        id__in=project_ids
+    ).filter(
+        Q(name__icontains=query) | Q(description__icontains=query)
+    ).order_by('-created_at')[:10]
+    
+    # Tìm kiếm công việc trong các dự án mà user có quyền truy cập
+    tasks = Task.objects.filter(
+        project__id__in=project_ids
+    ).filter(
+        Q(title__icontains=query) | Q(description__icontains=query)
+    ).select_related('project').order_by('-created_at')[:10]
+    
+    # Chuẩn bị dữ liệu trả về
+    projects_data = []
+    for project in projects:
+        projects_data.append({
+            'id': project.id,
+            'name': project.name,
+            'description': project.description,
+            'status': project.status,
+            'created_at': project.created_at.isoformat(),
+        })
+    
+    tasks_data = []
+    for task in tasks:
+        tasks_data.append({
+            'id': task.id,
+            'title': task.title,
+            'description': task.description,
+            'status': task.status,
+            'priority': task.priority,
+            'project_id': task.project.id,
+            'project_name': task.project.name,
+            'created_at': task.created_at.isoformat(),
+        })
+    
+    return JsonResponse({
+        'success': True,
+        'results': {
+            'projects': projects_data,
+            'tasks': tasks_data
+        },
+        'query': query
+    })

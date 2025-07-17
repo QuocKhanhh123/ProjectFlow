@@ -146,7 +146,7 @@
                     <span class="progress-percentage">{{ item.progress }}%</span>
                 </div>
                 <div class="progress-bar">
-                    <div class="progress-fill" style="width: {{ item.progress }}%"></div>
+                    <div class="progress-fill" data-progress="{{ item.progress }}"></div>
                 </div>
                 <div class="progress-details">
                     <small>{{ item.completed_tasks }}/{{ item.total_tasks }} nhiệm vụ hoàn thành</small>
@@ -177,9 +177,28 @@
     </div>
 </div>
 
+{{ chart_data|json_script:"chart-data" }}
+
 <script>
+// Set progress bar widths
+document.addEventListener('DOMContentLoaded', function() {
+    const progressFills = document.querySelectorAll('.progress-fill[data-progress]');
+    progressFills.forEach(fill => {
+        const progress = fill.getAttribute('data-progress');
+        fill.style.width = progress + '%';
+    });
+});
+
 // Chart data from Django
-const chartData = {{ chart_data|safe }};
+const chartData = JSON.parse(document.getElementById('chart-data').textContent);
+
+// Debug log to check data
+console.log('Chart data:', chartData);
+
+// Validate data
+if (!chartData || !chartData.task_status) {
+    console.error('Chart data is missing or invalid:', chartData);
+}
 
 // Chart configuration
 const chartConfig = {
@@ -192,20 +211,37 @@ const chartConfig = {
                 color: '#ffffff',
                 font: {
                     size: 12
-                }
+                },
+                usePointStyle: true,
+                padding: 15
             }
+        },
+        tooltip: {
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            titleColor: '#ffffff',
+            bodyColor: '#ffffff',
+            borderColor: '#374151',
+            borderWidth: 1
         }
     }
 };
 
 // Project Status Chart
 const projectStatusCtx = document.getElementById('projectStatusChart').getContext('2d');
+const projectStatusLabels = ['Đang hoạt động', 'Hoàn thành', 'Tạm dừng'];
+const projectStatusData = [
+    chartData.project_status?.active || 0, 
+    chartData.project_status?.completed || 0, 
+    chartData.project_status?.on_hold || 0
+];
+
 new Chart(projectStatusCtx, {
     type: 'doughnut',
     data: {
-        labels: ['Đang hoạt động', 'Hoàn thành', 'Tạm dừng'],
+        labels: projectStatusLabels,
         datasets: [{
-            data: [chartData.project_status.active, chartData.project_status.completed, chartData.project_status.on_hold],
+            label: 'Số lượng dự án',
+            data: projectStatusData,
             backgroundColor: ['#28a745', '#007bff', '#ffc107'],
             borderWidth: 0
         }]
@@ -215,24 +251,56 @@ new Chart(projectStatusCtx, {
 
 // Task Status Chart
 const taskStatusCtx = document.getElementById('taskStatusChart').getContext('2d');
+const taskStatusLabels = ['Chưa làm', 'Đang làm', 'Hoàn thành'];
+const taskStatusData = [
+    chartData.task_status?.todo || 0, 
+    chartData.task_status?.in_progress || 0, 
+    chartData.task_status?.done || 0
+];
+
+console.log('Task Status Labels:', taskStatusLabels);
+console.log('Task Status Data:', taskStatusData);
+
 new Chart(taskStatusCtx, {
     type: 'bar',
     data: {
-        labels: ['Chưa làm', 'Đang làm', 'Hoàn thành'],
+        labels: taskStatusLabels,
         datasets: [{
-            data: [chartData.task_status.todo, chartData.task_status.in_progress, chartData.task_status.done],
+            data: taskStatusData,
             backgroundColor: ['#dc3545', '#ffc107', '#28a745'],
             borderWidth: 0,
             borderRadius: 4
         }]
     },
     options: {
-        ...chartConfig,
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false  // Ẩn legend vì labels đã hiển thị dưới trục X
+            },
+            tooltip: {
+                backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                titleColor: '#ffffff',
+                bodyColor: '#ffffff',
+                borderColor: '#374151',
+                borderWidth: 1,
+                callbacks: {
+                    label: function(context) {
+                        return context.parsed.y + ' nhiệm vụ';
+                    }
+                }
+            }
+        },
         scales: {
             y: {
                 beginAtZero: true,
                 ticks: {
-                    color: '#ffffff'
+                    color: '#ffffff',
+                    stepSize: 1,
+                    callback: function(value) {
+                        return Number.isInteger(value) ? value : '';
+                    }
                 },
                 grid: {
                     color: 'rgba(255, 255, 255, 0.1)'
@@ -252,27 +320,20 @@ new Chart(taskStatusCtx, {
 
 // Task Priority Chart
 const taskPriorityCtx = document.getElementById('taskPriorityChart').getContext('2d');
+const taskPriorityLabels = ['Cao', 'Trung bình', 'Thấp'];
+const taskPriorityData = [
+    chartData.task_priority?.high || 0, 
+    chartData.task_priority?.medium || 0, 
+    chartData.task_priority?.low || 0
+];
+
 new Chart(taskPriorityCtx, {
     type: 'pie',
     data: {
-        labels: ['Cao', 'Trung bình', 'Thấp'],
+        labels: taskPriorityLabels,
         datasets: [{
-            data: [chartData.task_priority.high, chartData.task_priority.medium, chartData.task_priority.low],
-            backgroundColor: ['#dc3545', '#ffc107', '#28a745'],
-            borderWidth: 0
-        }]
-    },
-    options: chartConfig
-});
-
-// My Tasks Chart
-const myTasksCtx = document.getElementById('myTasksChart').getContext('2d');
-new Chart(myTasksCtx, {
-    type: 'doughnut',
-    data: {
-        labels: ['Chưa làm', 'Đang làm', 'Hoàn thành'],
-        datasets: [{
-            data: [chartData.my_tasks.todo, chartData.my_tasks.in_progress, chartData.my_tasks.done],
+            label: 'Độ ưu tiên',
+            data: taskPriorityData,
             backgroundColor: ['#dc3545', '#ffc107', '#28a745'],
             borderWidth: 0
         }]
