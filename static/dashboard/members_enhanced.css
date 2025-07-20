@@ -327,13 +327,13 @@
 
 .stat-label {
     font-size: 0.9em;
-    color: #666;
+    color: #48d4ff;
     font-weight: 500;
 }
 
 .stat-value {
     font-weight: bold;
-    color: #333;
+    color: #48d4ff;
 }
 
 /* Member Activity */
