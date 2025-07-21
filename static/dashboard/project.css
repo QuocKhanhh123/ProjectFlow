@@ -533,10 +533,19 @@
 
 .tab-content {
     display: block;
+    width: 100%;
+    margin: 0;
+    padding: 0;
 }
 
 .tab-content.hidden {
     display: none;
+}
+
+#members-tab {
+    width: 100%;
+    margin: 0;
+    padding: 0;
 }
 
 .task-header {
@@ -732,6 +741,8 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
+    width: 100%;
+    padding: 0;
 }
 
 .member-search {
@@ -769,6 +780,12 @@
 
 .btn-add-member:hover {
     background: #2563eb;
+}
+
+.member-list {
+    width: 100%;
+    margin: 0;
+    padding: 0;
 }
 
 .member-list h3 {

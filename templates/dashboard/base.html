@@ -35,6 +35,12 @@
                     <span class="menu-text">Dự án</span>
                 </a>
             </li>
+            <li class="{% if request.path == '/dashboard/my-tasks/' %}active{% endif %}">
+                <a href="{% url 'my_tasks' %}" title="Công việc của tôi">
+                    <span class="menu-icon">📝</span>
+                    <span class="menu-text">Công việc của tôi</span>
+                </a>
+            </li>
             <li class="{% if request.path == '/dashboard/members/' %}active{% endif %}">
                 <a href="{% url 'view_all_members' %}" title="Thành viên">
                     <span class="menu-icon">👥</span>

@@ -1656,6 +1656,40 @@ def pending_completion_requests_api(request):
     })
 
 @login_required(login_url="login")
+def my_tasks_view(request):
+    """
+    Hiển thị danh sách tất cả công việc được giao cho user hiện tại
+    """
+    user = request.user
+    
+    # Lấy tất cả tasks được giao cho user
+    my_tasks = Task.objects.filter(assignee=user).select_related('project').order_by('-created_at')
+    
+    # Phân loại tasks theo status
+    todo_tasks = my_tasks.filter(status='TODO')
+    in_progress_tasks = my_tasks.filter(status='IN_PROGRESS')
+    done_tasks = my_tasks.filter(status='DONE')
+    
+    # Tính toán thống kê
+    total_tasks = my_tasks.count()
+    overdue_tasks = my_tasks.filter(
+        deadline__lt=timezone.now(),
+        status__in=['TODO', 'IN_PROGRESS']
+    ).count()
+    
+    context = {
+        'my_tasks': my_tasks,
+        'todo_tasks': todo_tasks,
+        'in_progress_tasks': in_progress_tasks,
+        'done_tasks': done_tasks,
+        'total_tasks': total_tasks,
+        'overdue_tasks': overdue_tasks,
+        'now': timezone.now()
+    }
+    
+    return render(request, 'dashboard/my_tasks.html', context)
+
+@login_required(login_url="login")
 def notifications_view(request):
     """
     Hiển thị trang thông báo

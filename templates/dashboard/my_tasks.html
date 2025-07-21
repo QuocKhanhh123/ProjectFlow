@@ -1,0 +1,584 @@
+{% extends "dashboard/base.html" %}
+
+{% block include_header %}
+<link rel="stylesheet" href="/static/dashboard/project.css">
+<style>
+.my-tasks-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0;
+}
+
+.tasks-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 32px;
+}
+
+.tasks-title-group h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+    color: #ffffff;
+}
+
+.tasks-title-group p {
+    color: #9ca3af;
+    font-size: 1.15rem;
+    margin: 0;
+}
+
+.tasks-stats {
+    display: flex;
+    gap: 24px;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+}
+
+.stat-card {
+    flex: 1;
+    background: #1f2937;
+    border: 1px solid #374151;
+    border-radius: 12px;
+    padding: 24px 20px 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 180px;
+    min-height: 120px;
+    transition: all 0.2s;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.stat-card:hover {
+    border-color: #4b5563;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
+}
+
+.stat-card.danger {
+    border-color: #ef4444;
+}
+
+.stat-card.success {
+    border-color: #10b981;
+}
+
+.stat-card.warning {
+    border-color: #f59e0b;
+}
+
+.stat-card.info {
+    border-color: #3b82f6;
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.stat-label {
+    font-size: 1.1rem;
+    color: #9ca3af;
+    font-weight: 500;
+}
+
+.tasks-filters {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    background: #334155;
+    color: #ffffff;
+    border: 1px solid #475569;
+    border-radius: 8px;
+    padding: 8px 24px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+
+.filter-btn.active, .filter-btn:hover {
+    background: #3b82f6;
+    color: #fff;
+}
+
+.tasks-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.task-card {
+    background: #1f2937;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+}
+
+.task-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+}
+
+.task-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 15px;
+}
+
+.task-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 5px;
+}
+
+.task-project {
+    font-size: 14px;
+    color: #9ca3af;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.task-badges {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.task-status-badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.status-todo {
+    background: #e0e7ff;
+    color: #3730a3;
+}
+
+.status-in_progress {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.status-done {
+    background: #d1fae5;
+    color: #059669;
+}
+
+.task-priority-badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.priority-high {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.priority-medium {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.priority-low {
+    background: #e0e7ff;
+    color: #3730a3;
+}
+
+.task-description {
+    color: #d1d5db;
+    margin-bottom: 15px;
+    line-height: 1.5;
+}
+
+.task-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+    color: #9ca3af;
+}
+
+.task-deadline {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.task-deadline.overdue {
+    color: #ef4444;
+    font-weight: 600;
+}
+
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 60px;
+    text-align: center;
+    padding: 60px 20px;
+    color: #9ca3af;
+}
+
+.empty-state-icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+}
+
+.empty-state-text {
+    font-size: 1.5rem;
+    color: #fff;
+    margin-bottom: 0.5rem;
+}
+
+.empty-state-subtext {
+    color: #9ca3af;
+    margin-bottom: 1.5rem;
+}
+
+/* Light mode */
+body.light-mode .my-tasks-container {
+    background: #f8fafc;
+}
+
+body.light-mode .tasks-title-group h1 {
+    color: #1f2937;
+}
+
+body.light-mode .tasks-title-group p {
+    color: #6b7280;
+}
+
+body.light-mode .stat-card {
+    background: #ffffff;
+    border-color: #e5e7eb;
+}
+
+body.light-mode .stat-card:hover {
+    border-color: #d1d5db;
+}
+
+body.light-mode .stat-card.warning {
+    border-color: #f59e0b;
+}
+
+body.light-mode .stat-card.success {
+    border-color: #10b981;
+}
+
+body.light-mode .stat-card.info {
+    border-color: #3b82f6;
+}
+
+body.light-mode .stat-card.danger {
+    border-color: #ef4444;
+}
+
+body.light-mode .stat-number {
+    color: #1f2937;
+}
+
+body.light-mode .stat-label {
+    color: #6b7280;
+}
+
+body.light-mode .filter-btn {
+    background: #f3f4f6;
+    color: #374151;
+    border-color: #d1d5db;
+}
+
+body.light-mode .filter-btn.active, 
+body.light-mode .filter-btn:hover {
+    background: #3b82f6;
+    color: #ffffff;
+}
+
+body.light-mode .task-card {
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+body.light-mode .task-card:hover {
+    box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+}
+
+body.light-mode .task-title {
+    color: #1f2937;
+}
+
+body.light-mode .task-project {
+    color: #6b7280;
+}
+
+body.light-mode .task-description {
+    color: #4b5563;
+}
+
+body.light-mode .task-meta {
+    color: #6b7280;
+}
+
+body.light-mode .empty-state-text {
+    color: #1f2937;
+}
+
+body.light-mode .empty-state-subtext {
+    color: #6b7280;
+}
+
+@media (max-width: 768px) {
+    .my-tasks-container {
+        padding: 15px;
+    }
+    
+    .tasks-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .tasks-filters {
+        flex-direction: column;
+    }
+    
+    .task-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .task-badges {
+        margin-top: 10px;
+    }
+    
+    .task-meta {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block container %}
+<div class="my-tasks-container">
+    <!-- Header -->
+    <div class="tasks-header">
+        <div class="tasks-title-group">
+            <h1>📝 Công việc của tôi</h1>
+            <p>Tất cả công việc được giao cho bạn</p>
+        </div>
+    </div>
+    
+    <!-- Statistics -->
+    <div class="tasks-stats">
+        <div class="stat-card">
+            <div class="stat-number">{{ total_tasks }}</div>
+            <div class="stat-label">Tổng công việc</div>
+        </div>
+        
+        <div class="stat-card warning">
+            <div class="stat-number">{{ todo_tasks.count }}</div>
+            <div class="stat-label">Cần làm</div>
+        </div>
+        
+        <div class="stat-card info">
+            <div class="stat-number">{{ in_progress_tasks.count }}</div>
+            <div class="stat-label">Đang thực hiện</div>
+        </div>
+        
+        <div class="stat-card success">
+            <div class="stat-number">{{ done_tasks.count }}</div>
+            <div class="stat-label">Đã hoàn thành</div>
+        </div>
+        
+        {% if overdue_tasks > 0 %}
+        <div class="stat-card danger">
+            <div class="stat-number">{{ overdue_tasks }}</div>
+            <div class="stat-label">Quá hạn</div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Filters -->
+    <div class="tasks-filters">
+        <button class="filter-btn active" onclick="filterTasks('all')">
+            Tất cả ({{ total_tasks }})
+        </button>
+        <button class="filter-btn" onclick="filterTasks('todo')">
+            Cần làm ({{ todo_tasks.count }})
+        </button>
+        <button class="filter-btn" onclick="filterTasks('in_progress')">
+            Đang thực hiện ({{ in_progress_tasks.count }})
+        </button>
+        <button class="filter-btn" onclick="filterTasks('done')">
+            Đã hoàn thành ({{ done_tasks.count }})
+        </button>
+        {% if overdue_tasks > 0 %}
+        <button class="filter-btn" onclick="filterTasks('overdue')">
+            Quá hạn ({{ overdue_tasks }})
+        </button>
+        {% endif %}
+    </div>
+    
+    <!-- Tasks Grid -->
+    <div class="tasks-grid" id="tasksGrid">
+        {% for task in my_tasks %}
+        <div class="task-card" 
+             data-status="{{ task.status|lower }}"
+             data-overdue="{% if task.deadline < now and task.status != 'DONE' %}true{% else %}false{% endif %}"
+             data-url="{% url 'view_project_task_id' task.project.id task.id %}"
+             onclick="window.location.href=this.dataset.url">
+            
+            <div class="task-header">
+                <div>
+                    <h3 class="task-title">{{ task.title }}</h3>
+                    <div class="task-project">
+                        <span>📁</span>
+                        <span>{{ task.project.name }}</span>
+                    </div>
+                </div>
+                
+                <div class="task-badges">
+                    <span class="task-status-badge status-{{ task.status|lower }}">
+                        {% if task.status == 'TODO' %}Cần làm
+                        {% elif task.status == 'IN_PROGRESS' %}Đang thực hiện
+                        {% else %}Hoàn thành{% endif %}
+                    </span>
+                    
+                    <span class="task-priority-badge priority-{{ task.priority|lower }}">
+                        {% if task.priority == 'HIGH' %}Cao
+                        {% elif task.priority == 'MEDIUM' %}Trung bình
+                        {% else %}Thấp{% endif %}
+                    </span>
+                </div>
+            </div>
+            
+            {% if task.description %}
+            <div class="task-description">
+                {{ task.description|truncatewords:20 }}
+            </div>
+            {% endif %}
+            
+            <div class="task-meta">
+                <div>
+                    <span>📅 Tạo: {{ task.created_at|date:"d/m/Y" }}</span>
+                </div>
+                
+                {% if task.deadline %}
+                <div class="task-deadline {% if task.deadline < now and task.status != 'DONE' %}overdue{% endif %}">
+                    <span>⏰</span>
+                    <span>Hạn: {{ task.deadline|date:"d/m/Y H:i" }}</span>
+                    {% if task.deadline < now and task.status != 'DONE' %}
+                        <span style="color: #ef4444; font-weight: 600; margin-left: 5px;">⚠️ Quá hạn</span>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% empty %}
+        <div class="empty-state">
+            <div class="empty-state-icon">📝</div>
+            <div class="empty-state-text">Chưa có công việc nào</div>
+            <div class="empty-state-subtext">Bạn chưa được giao công việc nào. Hãy tham gia vào các dự án để nhận công việc!</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+function filterTasks(filter) {
+    // Update active filter button
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    event.target.classList.add('active');
+    
+    // Filter tasks
+    const taskCards = document.querySelectorAll('.task-card');
+    
+    taskCards.forEach(card => {
+        let show = false;
+        
+        switch(filter) {
+            case 'all':
+                show = true;
+                break;
+            case 'todo':
+                show = card.dataset.status === 'todo';
+                break;
+            case 'in_progress':
+                show = card.dataset.status === 'in_progress';
+                break;
+            case 'done':
+                show = card.dataset.status === 'done';
+                break;
+            case 'overdue':
+                show = card.dataset.overdue === 'true';
+                break;
+        }
+        
+        if (show) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+    
+    // Check if any tasks are visible
+    const visibleTasks = Array.from(taskCards).filter(card => card.style.display !== 'none');
+    const emptyState = document.querySelector('.empty-state');
+    
+    if (visibleTasks.length === 0 && !emptyState) {
+        // Create temporary empty state
+        const tempEmpty = document.createElement('div');
+        tempEmpty.className = 'empty-state temp-empty';
+        tempEmpty.innerHTML = `
+            <div class="empty-state-icon">🔍</div>
+            <div class="empty-state-text">Không tìm thấy công việc</div>
+            <div class="empty-state-subtext">Không có công việc nào phù hợp với bộ lọc hiện tại.</div>
+        `;
+        document.getElementById('tasksGrid').appendChild(tempEmpty);
+    } else {
+        // Remove temporary empty state
+        const tempEmpty = document.querySelector('.temp-empty');
+        if (tempEmpty) {
+            tempEmpty.remove();
+        }
+    }
+}
+
+// Add hover effects
+document.addEventListener('DOMContentLoaded', function() {
+    const taskCards = document.querySelectorAll('.task-card');
+    
+    taskCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-2px)';
+            this.style.boxShadow = '0 4px 8px rgba(0,0,0,0.15)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+            this.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+        });
+    });
+});
+</script>
+{% endblock %} 
