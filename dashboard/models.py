@@ -10,6 +10,7 @@ class ProjectStatus(models.TextChoices):
 class MemberRole(models.TextChoices):
     OWNER = 'OWNER', 'Owner'
     ADMIN = 'ADMIN', 'Admin'
+    LEADER = 'LEADER', 'Leader'
     MEMBER = 'MEMBER', 'Member'
 
 class InvitationStatus(models.TextChoices):
@@ -27,6 +28,18 @@ class TaskPriority(models.TextChoices):
     LOW = 'LOW', 'Low'
     MEDIUM = 'MEDIUM', 'Medium'
     HIGH = 'HIGH', 'High'
+
+class CompletionRequestStatus(models.TextChoices):
+    PENDING = 'PENDING', 'Pending'
+    APPROVED = 'APPROVED', 'Approved'
+    REJECTED = 'REJECTED', 'Rejected'
+
+class NotificationType(models.TextChoices):
+    TASK_ASSIGNED = 'TASK_ASSIGNED', 'Task Assigned'
+    COMPLETION_REQUEST = 'COMPLETION_REQUEST', 'Completion Request'
+    DEADLINE_WARNING = 'DEADLINE_WARNING', 'Deadline Warning'
+    COMPLETION_APPROVED = 'COMPLETION_APPROVED', 'Completion Approved'
+    COMPLETION_REJECTED = 'COMPLETION_REJECTED', 'Completion Rejected'
 
 class Project(models.Model):
     id = models.AutoField(primary_key=True)
@@ -116,6 +129,7 @@ class Task(models.Model):
         choices=TaskPriority.choices,
         default=TaskPriority.MEDIUM
     )
+    deadline = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     project = models.ForeignKey(
@@ -133,6 +147,39 @@ class Task(models.Model):
 
     class Meta:
         db_table = 'tasks'
+
+class TaskCompletionRequest(models.Model):
+    id = models.AutoField(primary_key=True)
+    task = models.ForeignKey(
+        Task,
+        on_delete=models.CASCADE,
+        related_name='completion_requests'
+    )
+    requester = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='completion_requests'
+    )
+    status = models.CharField(
+        max_length=20,
+        choices=CompletionRequestStatus.choices,
+        default=CompletionRequestStatus.PENDING
+    )
+    message = models.TextField(blank=True)
+    requested_at = models.DateTimeField(auto_now_add=True)
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+    reviewer = models.ForeignKey(
+        User,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='reviewed_completion_requests'
+    )
+    review_message = models.TextField(blank=True)
+
+    class Meta:
+        db_table = 'task_completion_requests'
+        unique_together = ['task', 'requester']
 
 class Comment(models.Model):
     id = models.AutoField(primary_key=True)
@@ -152,3 +199,61 @@ class Comment(models.Model):
 
     class Meta:
         db_table = 'comments'
+
+class Notification(models.Model):
+    id = models.AutoField(primary_key=True)
+    recipient = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='notifications'
+    )
+    sender = models.ForeignKey(
+        User,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='sent_notifications'
+    )
+    type = models.CharField(
+        max_length=30,
+        choices=NotificationType.choices
+    )
+    title = models.CharField(max_length=255)
+    message = models.TextField()
+    is_read = models.BooleanField(default=False)
+    is_email_sent = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    # Related objects for context
+    task = models.ForeignKey(
+        Task,
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+        related_name='notifications'
+    )
+    project = models.ForeignKey(
+        Project,
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+        related_name='notifications'
+    )
+    completion_request = models.ForeignKey(
+        TaskCompletionRequest,
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+        related_name='notifications'
+    )
+    
+    class Meta:
+        db_table = 'notifications'
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['recipient', 'is_read']),
+            models.Index(fields=['created_at']),
+        ]
+    
+    def __str__(self):
+        return f"{self.title} - {self.recipient.username}"

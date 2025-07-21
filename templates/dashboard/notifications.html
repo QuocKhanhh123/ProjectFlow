@@ -1,0 +1,583 @@
+{% extends "dashboard/base.html" %}
+
+{% block include_header %}
+<link rel="stylesheet" href="/static/dashboard/overview.css">
+<style>
+.notifications-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+    color: #ffffff;
+}
+
+.notifications-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.notifications-title {
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin: 0;
+    color: #ffffff;
+}
+
+.notifications-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.btn-mark-all-read {
+    background: #3b82f6;
+    color: #ffffff;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.btn-mark-all-read:hover {
+    background: #2563eb;
+}
+
+.btn-mark-all-read:disabled {
+    background: #6b7280;
+    cursor: not-allowed;
+}
+
+.notifications-stats {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.stat-card {
+    background: #1f2937;
+    border: 1px solid #374151;
+    border-radius: 12px;
+    padding: 16px;
+    flex: 1;
+    text-align: center;
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #3b82f6;
+    margin-bottom: 4px;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: #9ca3af;
+}
+
+.notifications-list {
+    background: #1f2937;
+    border: 1px solid #374151;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.notification-item {
+    display: flex;
+    padding: 20px;
+    border-bottom: 1px solid #374151;
+    transition: background-color 0.2s;
+    cursor: pointer;
+}
+
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+.notification-item:hover {
+    background: #374151;
+}
+
+.notification-item.unread {
+    background: rgba(59, 130, 246, 0.1);
+    border-left: 4px solid #3b82f6;
+}
+
+.notification-icon {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 16px;
+    font-size: 1.2rem;
+}
+
+.icon-task-assigned { background: #dbeafe; color: #1e40af; }
+.icon-deadline-warning { background: #fef3c7; color: #92400e; }
+.icon-completion-approved { background: #d1fae5; color: #065f46; }
+.icon-completion-rejected { background: #fee2e2; color: #991b1b; }
+.icon-completion-request { background: #f3e8ff; color: #6b21a8; }
+
+.notification-content {
+    flex: 1;
+}
+
+.notification-title {
+    font-weight: 600;
+    color: #ffffff;
+    margin-bottom: 4px;
+    font-size: 1rem;
+}
+
+.notification-message {
+    color: #d1d5db;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    margin-bottom: 8px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.notification-meta {
+    display: flex;
+    gap: 16px;
+    font-size: 0.8rem;
+    color: #9ca3af;
+}
+
+.notification-time {
+    color: #6b7280;
+}
+
+.notification-actions {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: 16px;
+}
+
+.btn-mark-read {
+    background: none;
+    border: none;
+    color: #6b7280;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    transition: all 0.2s;
+}
+
+.btn-mark-read:hover {
+    background: #374151;
+    color: #ffffff;
+}
+
+.unread-badge {
+    width: 8px;
+    height: 8px;
+    background: #3b82f6;
+    border-radius: 50%;
+    margin-left: 8px;
+}
+
+.loading-state, .error-state, .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #9ca3af;
+}
+
+.error-state {
+    color: #ef4444;
+}
+
+.empty-state h3 {
+    color: #ffffff;
+    margin-bottom: 12px;
+}
+
+.load-more-btn {
+    width: 100%;
+    background: #374151;
+    color: #ffffff;
+    border: none;
+    padding: 16px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background-color 0.2s;
+}
+
+.load-more-btn:hover {
+    background: #4b5563;
+}
+
+.load-more-btn:disabled {
+    background: #1f2937;
+    color: #6b7280;
+    cursor: not-allowed;
+}
+
+/* Light mode styles */
+body.light-mode .notifications-container {
+    color: #1f2937;
+}
+
+body.light-mode .notifications-title {
+    color: #1f2937;
+}
+
+body.light-mode .stat-card {
+    background: #ffffff;
+    border-color: #e5e7eb;
+}
+
+body.light-mode .notifications-list {
+    background: #ffffff;
+    border-color: #e5e7eb;
+}
+
+body.light-mode .notification-item {
+    border-bottom-color: #e5e7eb;
+}
+
+body.light-mode .notification-item:hover {
+    background: #f9fafb;
+}
+
+body.light-mode .notification-title {
+    color: #1f2937;
+}
+
+body.light-mode .notification-message {
+    color: #4b5563;
+}
+</style>
+{% endblock %}
+
+{% block container %}
+<div class="notifications-container">
+    <div class="notifications-header">
+        <h1 class="notifications-title">Thông báo</h1>
+        <div class="notifications-actions">
+            <button class="btn-mark-all-read" onclick="markAllAsRead()" id="markAllBtn">
+                <i class="fa-solid fa-check-double"></i> Đánh dấu tất cả đã đọc
+            </button>
+        </div>
+    </div>
+
+    <div class="notifications-stats" id="notificationStats" style="display: none;">
+        <div class="stat-card">
+            <div class="stat-number" id="totalCount">0</div>
+            <div class="stat-label">Tổng số thông báo</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="unreadCount">0</div>
+            <div class="stat-label">Chưa đọc</div>
+        </div>
+    </div>
+
+    <div id="loading" class="loading-state">
+        <div>⏳ Đang tải thông báo...</div>
+    </div>
+
+    <div id="error" class="error-state" style="display: none;">
+        <div>❌ Có lỗi xảy ra khi tải thông báo</div>
+        <button class="btn-mark-all-read" onclick="loadNotifications()">Thử lại</button>
+    </div>
+
+    <div id="notifications-content" style="display: none;">
+        <div class="notifications-list" id="notifications-list">
+            <!-- Notifications will be loaded here -->
+        </div>
+        
+        <button class="load-more-btn" id="loadMoreBtn" onclick="loadMore()" style="display: none;">
+            <i class="fa-solid fa-chevron-down"></i> Tải thêm thông báo
+        </button>
+    </div>
+
+    <div id="empty-state" class="empty-state" style="display: none;">
+        <h3>Không có thông báo</h3>
+        <p>Bạn chưa có thông báo nào.</p>
+    </div>
+</div>
+
+<script>
+let currentPage = 1;
+let hasMore = true;
+let isLoading = false;
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadNotifications();
+});
+
+function loadNotifications(reset = true) {
+    if (isLoading) return;
+    
+    if (reset) {
+        currentPage = 1;
+        hasMore = true;
+    }
+    
+    const loading = document.getElementById('loading');
+    const error = document.getElementById('error');
+    const content = document.getElementById('notifications-content');
+    const emptyState = document.getElementById('empty-state');
+    const stats = document.getElementById('notificationStats');
+    
+    if (reset) {
+        // Show loading state
+        loading.style.display = 'block';
+        error.style.display = 'none';
+        content.style.display = 'none';
+        emptyState.style.display = 'none';
+        stats.style.display = 'none';
+    }
+    
+    isLoading = true;
+    
+    fetch(`/dashboard/api/notifications/?page=${currentPage}&per_page=20`)
+        .then(response => response.json())
+        .then(data => {
+            isLoading = false;
+            loading.style.display = 'none';
+            
+            if (data.success) {
+                if (data.notifications.length > 0 || !reset) {
+                    displayNotifications(data.notifications, reset);
+                    updateStats(data.total_count, data.unread_count);
+                    hasMore = data.has_more;
+                    updateLoadMoreButton();
+                    content.style.display = 'block';
+                    stats.style.display = 'flex';
+                } else {
+                    emptyState.style.display = 'block';
+                }
+            } else {
+                error.style.display = 'block';
+            }
+        })
+        .catch(err => {
+            console.error('Error loading notifications:', err);
+            isLoading = false;
+            loading.style.display = 'none';
+            error.style.display = 'block';
+        });
+}
+
+function displayNotifications(notifications, reset = true) {
+    const list = document.getElementById('notifications-list');
+    
+    if (reset) {
+        list.innerHTML = '';
+    }
+    
+    notifications.forEach(notification => {
+        const item = document.createElement('div');
+        item.className = `notification-item ${!notification.is_read ? 'unread' : ''}`;
+        item.setAttribute('data-notification-id', notification.id);
+        
+        const iconClass = getIconClass(notification.type);
+        const timeAgo = formatTimeAgo(notification.created_at);
+        
+        item.innerHTML = `
+            <div class="notification-icon ${iconClass}">
+                ${getIconSymbol(notification.type)}
+            </div>
+            <div class="notification-content">
+                <div class="notification-title">${notification.title}</div>
+                <div class="notification-message">${notification.message}</div>
+                <div class="notification-meta">
+                    ${notification.sender ? `<span>Từ: ${notification.sender.username}</span>` : ''}
+                    ${notification.project ? `<span>Dự án: ${notification.project.name}</span>` : ''}
+                    <span class="notification-time">${timeAgo}</span>
+                </div>
+            </div>
+            <div class="notification-actions">
+                ${!notification.is_read ? '<div class="unread-badge"></div>' : ''}
+                ${!notification.is_read ? `<button class="btn-mark-read" onclick="markAsRead(${notification.id})">Đánh dấu đã đọc</button>` : ''}
+            </div>
+        `;
+        
+        // Add click handler
+        item.addEventListener('click', function(e) {
+            if (e.target.classList.contains('btn-mark-read')) {
+                return; // Don't navigate if clicking mark as read button
+            }
+            
+            // Mark as read if unread
+            if (!notification.is_read) {
+                markAsRead(notification.id);
+            }
+            
+            // Navigate to relevant page
+            if (notification.task && notification.project) {
+                window.location.href = `/dashboard/projects/${notification.project.id}/tasks/${notification.task.id}/`;
+            } else if (notification.project) {
+                window.location.href = `/dashboard/projects/${notification.project.id}/`;
+            }
+        });
+        
+        list.appendChild(item);
+    });
+}
+
+function getIconClass(type) {
+    const iconClasses = {
+        'TASK_ASSIGNED': 'icon-task-assigned',
+        'DEADLINE_WARNING': 'icon-deadline-warning',
+        'COMPLETION_APPROVED': 'icon-completion-approved',
+        'COMPLETION_REJECTED': 'icon-completion-rejected',
+        'COMPLETION_REQUEST': 'icon-completion-request'
+    };
+    return iconClasses[type] || 'icon-task-assigned';
+}
+
+function getIconSymbol(type) {
+    const icons = {
+        'TASK_ASSIGNED': '📋',
+        'DEADLINE_WARNING': '⚠️',
+        'COMPLETION_APPROVED': '✅',
+        'COMPLETION_REJECTED': '❌',
+        'COMPLETION_REQUEST': '🔔'
+    };
+    return icons[type] || '📋';
+}
+
+function updateStats(total, unread) {
+    document.getElementById('totalCount').textContent = total;
+    document.getElementById('unreadCount').textContent = unread;
+    
+    const markAllBtn = document.getElementById('markAllBtn');
+    markAllBtn.disabled = unread === 0;
+}
+
+function updateLoadMoreButton() {
+    const loadMoreBtn = document.getElementById('loadMoreBtn');
+    if (hasMore) {
+        loadMoreBtn.style.display = 'block';
+        loadMoreBtn.disabled = false;
+    } else {
+        loadMoreBtn.style.display = 'none';
+    }
+}
+
+function loadMore() {
+    if (!hasMore || isLoading) return;
+    
+    currentPage++;
+    const loadMoreBtn = document.getElementById('loadMoreBtn');
+    loadMoreBtn.disabled = true;
+    loadMoreBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang tải...';
+    
+    loadNotifications(false);
+}
+
+function markAsRead(notificationId) {
+    fetch(`/dashboard/api/notifications/${notificationId}/read/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update UI
+            const item = document.querySelector(`[data-notification-id="${notificationId}"]`);
+            if (item) {
+                item.classList.remove('unread');
+                const badge = item.querySelector('.unread-badge');
+                const markBtn = item.querySelector('.btn-mark-read');
+                if (badge) badge.remove();
+                if (markBtn) markBtn.remove();
+            }
+            
+            // Update unread count
+            const unreadCountEl = document.getElementById('unreadCount');
+            const currentCount = parseInt(unreadCountEl.textContent);
+            unreadCountEl.textContent = Math.max(0, currentCount - 1);
+            
+            // Update mark all button
+            const markAllBtn = document.getElementById('markAllBtn');
+            if (currentCount - 1 === 0) {
+                markAllBtn.disabled = true;
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error marking notification as read:', error);
+    });
+}
+
+function markAllAsRead() {
+    const markAllBtn = document.getElementById('markAllBtn');
+    markAllBtn.disabled = true;
+    markAllBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang xử lý...';
+    
+    fetch('/dashboard/api/notifications/mark-all-read/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Reload notifications
+            loadNotifications();
+            showNotification(data.message, 'success');
+        } else {
+            showNotification('Có lỗi xảy ra', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error marking all notifications as read:', error);
+        showNotification('Có lỗi xảy ra', 'error');
+    })
+    .finally(() => {
+        markAllBtn.disabled = false;
+        markAllBtn.innerHTML = '<i class="fa-solid fa-check-double"></i> Đánh dấu tất cả đã đọc';
+    });
+}
+
+function formatTimeAgo(dateString) {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffInSeconds = Math.floor((now - date) / 1000);
+    
+    if (diffInSeconds < 60) return 'Vừa xong';
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} phút trước`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} giờ trước`;
+    if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)} ngày trước`;
+    
+    return date.toLocaleDateString('vi-VN');
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function showNotification(message, type) {
+    // Simple notification - you can enhance this
+    alert(message);
+}
+</script>
+{% endblock %} 

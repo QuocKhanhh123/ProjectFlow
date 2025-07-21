@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ProjectFlow - Quản lý dự án</title>
     <link rel="stylesheet" href="/static/dashboard/frame.css">
-    <link rel="stylesheetc" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     
     {% block include_header %}
 
@@ -39,6 +39,24 @@
                 <a href="{% url 'view_all_members' %}" title="Thành viên">
                     <span class="menu-icon">👥</span>
                     <span class="menu-text">Thành viên</span>
+                </a>
+            </li>
+            <li class="{% if request.path == '/dashboard/statistics/tasks/' %}active{% endif %}">
+                <a href="{% url 'task_statistics' %}" title="Thống kê công việc">
+                    <span class="menu-icon">📊</span>
+                    <span class="menu-text">Thống kê</span>
+                </a>
+            </li>
+            <li class="{% if request.path == '/dashboard/completion-requests/pending/' %}active{% endif %}">
+                <a href="{% url 'pending_completion_requests' %}" title="Yêu cầu hoàn thành">
+                    <span class="menu-icon">✅</span>
+                    <span class="menu-text">Yêu cầu duyệt</span>
+                </a>
+            </li>
+            <li class="{% if request.path == '/dashboard/notifications/' %}active{% endif %}">
+                <a href="{% url 'notifications' %}" title="Thông báo">
+                    <span class="menu-icon">🔔</span>
+                    <span class="menu-text">Thông báo</span>
                 </a>
             </li>
             <li class="{% if request.path == '/dashbooard/settings/' %}active{% endif %}">

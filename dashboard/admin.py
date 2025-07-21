@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import Project, Task, Comment, User
+from .models import Project, Task, Comment, ProjectMember, ProjectInvitation, TaskCompletionRequest, Notification
+from users.models import User
 # Register your models here.
 @admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
@@ -22,9 +23,21 @@ class CommentAdmin(admin.ModelAdmin):
     list_filter = ('created_at',)
     ordering = ('-created_at',)
 
-@admin.register(User)
-class UserAdmin(admin.ModelAdmin):
-    list_display = ('username', 'email', 'is_active', 'date_joined')
-    search_fields = ('username', 'email')
-    list_filter = ('is_active', 'date_joined')
-    ordering = ('-date_joined',)
+@admin.register(ProjectMember)
+class ProjectMemberAdmin(admin.ModelAdmin):
+    list_display = ('user', 'project', 'role', 'joined_at')
+    list_filter = ('role', 'joined_at')
+    search_fields = ('user__username', 'project__name')
+
+@admin.register(TaskCompletionRequest)
+class TaskCompletionRequestAdmin(admin.ModelAdmin):
+    list_display = ('task', 'requester', 'status', 'requested_at', 'reviewer')
+    list_filter = ('status', 'requested_at')
+    search_fields = ('task__title', 'requester__username', 'reviewer__username')
+
+@admin.register(Notification)
+class NotificationAdmin(admin.ModelAdmin):
+    list_display = ('title', 'recipient', 'type', 'is_read', 'is_email_sent', 'created_at')
+    list_filter = ('type', 'is_read', 'is_email_sent', 'created_at')
+    search_fields = ('title', 'message', 'recipient__username', 'sender__username')
+    readonly_fields = ('created_at',)

@@ -26,7 +26,9 @@
 
   <div class="tab-content" id="tasks-tab">
     <div class="task-header">
-      <button class="btn btn-add-task" onclick="showCreateTaskModal()">+ Tạo công việc</button>
+      <button class="btn btn-add-task" onclick="showCreateTaskModal()">
+        <i class="fa-solid fa-plus"></i> Tạo công việc
+      </button>
     </div>
     
     <div class="task-columns">
@@ -57,6 +59,11 @@
                     {% endif %}
                   </div>
                   <div class="task-date">{{ task.created_at|date:"d/m/Y" }}</div>
+                  {% if task.deadline %}
+                    <div class="task-deadline {% if task.deadline < now and task.status != 'DONE' %}overdue{% endif %}">
+                      ⏰ {{ task.deadline|date:"d/m/Y H:i" }}
+                    </div>
+                  {% endif %}
                 </div>
               </div>
             {% endif %}
@@ -93,6 +100,11 @@
                     {% endif %}
                   </div>
                   <div class="task-date">{{ task.created_at|date:"d/m/Y" }}</div>
+                  {% if task.deadline %}
+                    <div class="task-deadline {% if task.deadline < now and task.status != 'DONE' %}overdue{% endif %}">
+                      ⏰ {{ task.deadline|date:"d/m/Y H:i" }}
+                    </div>
+                  {% endif %}
                 </div>
               </div>
             {% endif %}
@@ -129,6 +141,11 @@
                     {% endif %}
                   </div>
                   <div class="task-date">{{ task.created_at|date:"d/m/Y" }}</div>
+                  {% if task.deadline %}
+                    <div class="task-deadline">
+                      ⏰ {{ task.deadline|date:"d/m/Y H:i" }}
+                    </div>
+                  {% endif %}
                 </div>
               </div>
             {% endif %}
@@ -144,7 +161,9 @@
     <div class="member-header">
       <input class="member-search" placeholder="Tìm kiếm thành viên...">
       {% if can_edit %}
-        <button class="btn-add-member" onclick="showAddMemberModal()">👤+ Thêm thành viên</button>
+        <button class="btn-add-member" onclick="showAddMemberModal()">
+          <i class="fa-solid fa-user-plus"></i> Thêm thành viên
+        </button>
       {% endif %}
     </div>
 
@@ -166,8 +185,12 @@
             </div>
             {% if can_edit and member.role != 'OWNER' %}
               <div class="member-actions">
-                <button class="btn btn-sm btn-outline" data-member-id="{{ member.id }}" data-role="{{ member.role }}" onclick="updateMemberRole('{{ member.id }}', '{{ member.role }}')">Đổi vai trò</button>
-                <button class="btn btn-sm btn-danger" data-member-id="{{ member.id }}" data-username="{{ member.user.username }}" onclick="removeMember('{{ member.id }}', '{{ member.user.username }}')">Xóa</button>
+                <button class="btn btn-sm btn-outline" data-member-id="{{ member.id }}" data-role="{{ member.role }}" onclick="updateMemberRole('{{ member.id }}', '{{ member.role }}')">
+                  <i class="fa-solid fa-user-gear"></i> Đổi vai trò
+                </button>
+                <button class="btn btn-sm btn-danger" data-member-id="{{ member.id }}" data-username="{{ member.user.username }}" onclick="removeMember('{{ member.id }}', '{{ member.user.username }}')">
+                  <i class="fa-solid fa-user-minus"></i> Xóa
+                </button>
               </div>
             {% endif %}
           </div>
@@ -220,9 +243,30 @@
             </div>
           </div>
           
+          <div class="form-row">
+            <div class="form-group">
+              <label for="taskAssignee">Giao cho</label>
+              <select id="taskAssignee" name="taskAssignee">
+                <option value="">Chọn thành viên</option>
+                {% for member in members %}
+                  <option value="{{ member.user.id }}">{{ member.user.username }} ({{ member.get_role_display }})</option>
+                {% endfor %}
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label for="taskDeadline">Hạn hoàn thành</label>
+              <input type="datetime-local" id="taskDeadline" name="taskDeadline">
+            </div>
+          </div>
+          
           <div class="form-actions">
-            <button type="button" class="btn btn-cancel" onclick="hideCreateTaskModal()">Hủy</button>
-            <button type="submit" class="btn btn-create">Tạo công việc</button>
+            <button type="button" class="btn btn-cancel" onclick="hideCreateTaskModal()">
+              <i class="fa-solid fa-xmark"></i> Hủy
+            </button>
+            <button type="submit" class="btn btn-create">
+              <i class="fa-solid fa-plus"></i> Tạo công việc
+            </button>
           </div>
         </form>
       </div>
@@ -259,8 +303,12 @@
           </div>
           
           <div class="form-actions">
-            <button type="button" class="btn btn-cancel" onclick="hideEditProjectModal()">Hủy</button>
-            <button type="submit" class="btn btn-create">Lưu thay đổi</button>
+            <button type="button" class="btn btn-cancel" onclick="hideEditProjectModal()">
+              <i class="fa-solid fa-xmark"></i> Hủy
+            </button>
+            <button type="submit" class="btn btn-create">
+              <i class="fa-solid fa-floppy-disk"></i> Lưu thay đổi
+            </button>
           </div>
         </form>
       </div>
@@ -759,7 +807,9 @@ function hideRemoveMemberModal() {
         title: formData.get('taskTitle'),
         description: formData.get('taskDescription'),
         status: formData.get('taskStatus'),
-        priority: formData.get('taskPriority')
+        priority: formData.get('taskPriority'),
+        assignee_id: formData.get('taskAssignee') || null,
+        deadline: formData.get('taskDeadline') || null
       };
       
       fetch(`/dashboard/projects/{{ project.id }}/tasks/create/`, {
@@ -832,6 +882,11 @@ function hideRemoveMemberModal() {
         
         const taskDate = new Date(task.created_at).toLocaleDateString('vi-VN');
         
+        const deadlineHtml = task.deadline ? 
+          `<div class="task-deadline ${isOverdue(task.deadline, task.status) ? 'overdue' : ''}">
+             ⏰ ${formatDateTime(task.deadline)}
+           </div>` : '';
+        
         taskCard.innerHTML = `
           <div class="task-header">
             <h4 class="task-title">${task.title}</h4>
@@ -845,6 +900,7 @@ function hideRemoveMemberModal() {
               <span class="assignee-name">${task.assignee || 'Chưa gán'}</span>
             </div>
             <div class="task-date">${taskDate}</div>
+            ${deadlineHtml}
           </div>
         `;
         
@@ -858,6 +914,19 @@ function hideRemoveMemberModal() {
           }
         });
       }
+    }
+    
+    // Helper functions
+    function formatDateTime(dateString) {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('vi-VN') + ' ' + date.toLocaleTimeString('vi-VN', {hour: '2-digit', minute: '2-digit'});
+    }
+    
+    function isOverdue(deadline, status) {
+      if (status === 'DONE') return false;
+      const now = new Date();
+      const deadlineDate = new Date(deadline);
+      return deadlineDate < now;
     }
 
     // Function to update task counts

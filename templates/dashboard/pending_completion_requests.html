@@ -1,0 +1,534 @@
+{% extends "dashboard/base.html" %}
+
+{% block include_header %}
+<link rel="stylesheet" href="/static/dashboard/overview.css">
+<style>
+.requests-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    color: #ffffff;
+}
+
+.requests-header {
+    margin-bottom: 30px;
+}
+
+.requests-title {
+    font-size: 2.2rem;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+    color: #ffffff;
+}
+
+.requests-description {
+    color: #9ca3af;
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+.requests-grid {
+    display: grid;
+    gap: 20px;
+}
+
+.request-card {
+    background: #1f2937;
+    border: 1px solid #374151;
+    border-radius: 12px;
+    padding: 20px;
+    transition: all 0.2s;
+}
+
+.request-card:hover {
+    border-color: #4b5563;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
+}
+
+.request-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+}
+
+.request-info h3 {
+    color: #ffffff;
+    margin: 0 0 4px 0;
+    font-size: 1.2rem;
+}
+
+.request-meta {
+    font-size: 0.9rem;
+    color: #9ca3af;
+}
+
+.priority-badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-transform: uppercase;
+}
+
+.priority-high { background: #ef4444; color: #ffffff; }
+.priority-medium { background: #f59e0b; color: #ffffff; }
+.priority-low { background: #10b981; color: #ffffff; }
+
+.request-content {
+    margin-bottom: 20px;
+}
+
+.task-description {
+    color: #d1d5db;
+    margin-bottom: 12px;
+    font-size: 0.9rem;
+}
+
+.request-message {
+    background: #374151;
+    padding: 12px;
+    border-radius: 8px;
+    border-left: 4px solid #3b82f6;
+    margin-bottom: 16px;
+}
+
+.request-message-label {
+    font-size: 0.8rem;
+    color: #9ca3af;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    font-weight: 500;
+}
+
+.request-message-text {
+    color: #ffffff;
+    font-size: 0.9rem;
+}
+
+.deadline-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    font-size: 0.9rem;
+}
+
+.deadline-normal { color: #3b82f6; }
+.deadline-warning { color: #f59e0b; }
+.deadline-overdue { color: #ef4444; }
+
+.request-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.btn-approve {
+    background: #10b981;
+    color: #ffffff;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.btn-approve:hover {
+    background: #059669;
+}
+
+.btn-reject {
+    background: #ef4444;
+    color: #ffffff;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.btn-reject:hover {
+    background: #dc2626;
+}
+
+.loading-state, .error-state, .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #9ca3af;
+}
+
+.error-state {
+    color: #ef4444;
+}
+
+.empty-state h3 {
+    color: #ffffff;
+    margin-bottom: 12px;
+}
+
+.refresh-btn {
+    background: #3b82f6;
+    color: #ffffff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 20px;
+    transition: background-color 0.2s;
+}
+
+.refresh-btn:hover {
+    background: #2563eb;
+}
+
+/* Modal for review */
+.review-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.review-modal-content {
+    background: #1f2937;
+    border-radius: 12px;
+    padding: 24px;
+    max-width: 500px;
+    width: 90%;
+    border: 1px solid #374151;
+}
+
+.review-modal h3 {
+    color: #ffffff;
+    margin-bottom: 16px;
+}
+
+.review-form textarea {
+    width: 100%;
+    padding: 12px;
+    background: #374151;
+    border: 1px solid #4b5563;
+    border-radius: 6px;
+    color: #ffffff;
+    resize: vertical;
+    min-height: 80px;
+    margin-bottom: 16px;
+}
+
+.review-form textarea::placeholder {
+    color: #9ca3af;
+}
+
+.review-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+}
+
+.btn-cancel {
+    background: #374151;
+    color: #ffffff;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.btn-cancel:hover {
+    background: #4b5563;
+}
+</style>
+{% endblock %}
+
+{% block container %}
+<div class="requests-container">
+    <div class="requests-header">
+        <h1 class="requests-title">Yêu cầu hoàn thành</h1>
+        <p class="requests-description">Xem xét và phê duyệt các yêu cầu hoàn thành công việc từ thành viên</p>
+        <button class="refresh-btn" onclick="loadRequests()">🔄 Làm mới</button>
+    </div>
+
+    <div id="loading" class="loading-state">
+        <div>⏳ Đang tải yêu cầu...</div>
+    </div>
+
+    <div id="error" class="error-state" style="display: none;">
+        <div>❌ Có lỗi xảy ra khi tải yêu cầu</div>
+        <button class="refresh-btn" onclick="loadRequests()">Thử lại</button>
+    </div>
+
+    <div id="requests-content" style="display: none;">
+        <div class="requests-grid" id="requests-grid">
+            <!-- Requests will be loaded here -->
+        </div>
+    </div>
+
+    <div id="empty-state" class="empty-state" style="display: none;">
+        <h3>Không có yêu cầu nào</h3>
+        <p>Hiện tại không có yêu cầu hoàn thành công việc nào đang chờ duyệt.</p>
+    </div>
+</div>
+
+<!-- Review Modal -->
+<div id="reviewModal" class="review-modal" style="display: none;">
+    <div class="review-modal-content">
+        <h3 id="reviewModalTitle">Xem xét yêu cầu</h3>
+        <form id="reviewForm" class="review-form">
+            <textarea id="reviewMessage" placeholder="Nhập lý do hoặc ghi chú (tùy chọn)"></textarea>
+            <div class="review-actions">
+                <button type="button" class="btn-cancel" onclick="closeReviewModal()">Hủy</button>
+                <button type="submit" class="btn-approve" id="reviewSubmitBtn">Phê duyệt</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+let currentRequestId = null;
+let currentAction = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+    loadRequests();
+});
+
+function loadRequests() {
+    const loading = document.getElementById('loading');
+    const error = document.getElementById('error');
+    const content = document.getElementById('requests-content');
+    const emptyState = document.getElementById('empty-state');
+    
+    // Show loading state
+    loading.style.display = 'block';
+    error.style.display = 'none';
+    content.style.display = 'none';
+    emptyState.style.display = 'none';
+    
+    fetch('/dashboard/api/completion-requests/pending/')
+        .then(response => response.json())
+        .then(data => {
+            loading.style.display = 'none';
+            
+            if (data.success && data.requests.length > 0) {
+                displayRequests(data.requests);
+                content.style.display = 'block';
+            } else {
+                emptyState.style.display = 'block';
+            }
+        })
+        .catch(err => {
+            console.error('Error loading requests:', err);
+            loading.style.display = 'none';
+            error.style.display = 'block';
+        });
+}
+
+function displayRequests(requests) {
+    const grid = document.getElementById('requests-grid');
+    grid.innerHTML = '';
+    
+    requests.forEach(request => {
+        const card = document.createElement('div');
+        card.className = 'request-card';
+        
+        const deadlineInfo = getDeadlineInfo(request.task.deadline);
+        const requestDate = new Date(request.requested_at).toLocaleDateString('vi-VN', {
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+        
+        card.innerHTML = `
+            <div class="request-header">
+                <div class="request-info">
+                    <h3>${request.task.title}</h3>
+                    <div class="request-meta">
+                        <strong>Dự án:</strong> ${request.project.name} | 
+                        <strong>Người yêu cầu:</strong> ${request.requester.username} | 
+                        <strong>Thời gian:</strong> ${requestDate}
+                    </div>
+                </div>
+                <div class="priority-badge priority-${request.task.priority.toLowerCase()}">
+                    ${getPriorityText(request.task.priority)}
+                </div>
+            </div>
+            
+            <div class="request-content">
+                <div class="task-description">${request.task.description}</div>
+                
+                ${deadlineInfo.html}
+                
+                ${request.message ? `
+                    <div class="request-message">
+                        <div class="request-message-label">Tin nhắn từ thành viên:</div>
+                        <div class="request-message-text">${request.message}</div>
+                    </div>
+                ` : ''}
+            </div>
+            
+            <div class="request-actions">
+                <button class="btn-approve" onclick="showReviewModal(${request.id}, 'approve')">
+                    ✅ Phê duyệt
+                </button>
+                <button class="btn-reject" onclick="showReviewModal(${request.id}, 'reject')">
+                    ❌ Từ chối
+                </button>
+            </div>
+        `;
+        
+        grid.appendChild(card);
+    });
+}
+
+function getDeadlineInfo(deadline) {
+    if (!deadline) {
+        return { html: '', class: '' };
+    }
+    
+    const deadlineDate = new Date(deadline);
+    const now = new Date();
+    const diffHours = (deadlineDate - now) / (1000 * 60 * 60);
+    
+    let className = 'deadline-normal';
+    let icon = '⏰';
+    
+    if (diffHours < 0) {
+        className = 'deadline-overdue';
+        icon = '⚠️';
+    } else if (diffHours < 24) {
+        className = 'deadline-warning';
+        icon = '⚡';
+    }
+    
+    const formattedDate = deadlineDate.toLocaleDateString('vi-VN', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+    
+    return {
+        html: `<div class="deadline-info ${className}">${icon} Hạn: ${formattedDate}</div>`,
+        class: className
+    };
+}
+
+function getPriorityText(priority) {
+    const priorityMap = {
+        'HIGH': 'Cao',
+        'MEDIUM': 'Trung bình',
+        'LOW': 'Thấp'
+    };
+    return priorityMap[priority] || priority;
+}
+
+function showReviewModal(requestId, action) {
+    currentRequestId = requestId;
+    currentAction = action;
+    
+    const modal = document.getElementById('reviewModal');
+    const title = document.getElementById('reviewModalTitle');
+    const submitBtn = document.getElementById('reviewSubmitBtn');
+    
+    if (action === 'approve') {
+        title.textContent = 'Phê duyệt yêu cầu';
+        submitBtn.textContent = '✅ Phê duyệt';
+        submitBtn.className = 'btn-approve';
+    } else {
+        title.textContent = 'Từ chối yêu cầu';
+        submitBtn.textContent = '❌ Từ chối';
+        submitBtn.className = 'btn-reject';
+    }
+    
+    modal.style.display = 'flex';
+}
+
+function closeReviewModal() {
+    const modal = document.getElementById('reviewModal');
+    const textarea = document.getElementById('reviewMessage');
+    
+    modal.style.display = 'none';
+    textarea.value = '';
+    currentRequestId = null;
+    currentAction = null;
+}
+
+document.getElementById('reviewForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    if (!currentRequestId || !currentAction) return;
+    
+    const reviewMessage = document.getElementById('reviewMessage').value.trim();
+    const submitBtn = document.getElementById('reviewSubmitBtn');
+    
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Đang xử lý...';
+    
+    fetch(`/dashboard/projects/0/completion-requests/${currentRequestId}/review/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            action: currentAction,
+            review_message: reviewMessage
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification(data.message, 'success');
+            closeReviewModal();
+            loadRequests(); // Reload the requests
+        } else {
+            showNotification(data.error || 'Có lỗi xảy ra', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Có lỗi xảy ra khi xử lý yêu cầu', 'error');
+    })
+    .finally(() => {
+        submitBtn.disabled = false;
+        submitBtn.textContent = currentAction === 'approve' ? '✅ Phê duyệt' : '❌ Từ chối';
+    });
+});
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function showNotification(message, type) {
+    // Simple notification - you can enhance this
+    alert(message);
+}
+</script>
+{% endblock %} 
