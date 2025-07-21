@@ -192,9 +192,6 @@ document.addEventListener('DOMContentLoaded', function() {
 // Chart data from Django
 const chartData = JSON.parse(document.getElementById('chart-data').textContent);
 
-// Debug log to check data
-console.log('Chart data:', chartData);
-
 // Validate data
 if (!chartData || !chartData.task_status) {
     console.error('Chart data is missing or invalid:', chartData);
@@ -258,8 +255,6 @@ const taskStatusData = [
     chartData.task_status?.done || 0
 ];
 
-console.log('Task Status Labels:', taskStatusLabels);
-console.log('Task Status Data:', taskStatusData);
 
 new Chart(taskStatusCtx, {
     type: 'bar',

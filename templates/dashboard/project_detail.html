@@ -256,7 +256,7 @@
             
             <div class="form-group">
               <label for="taskDeadline">Hạn hoàn thành</label>
-              <input type="datetime-local" id="taskDeadline" name="taskDeadline">
+              <input type="datetime-local" id="taskDeadline" name="taskDeadline" min="">
             </div>
           </div>
           
@@ -440,6 +440,19 @@
     function showCreateTaskModal() {
       document.getElementById('createTaskModal').classList.remove('hidden');
       document.body.style.overflow = 'hidden';
+      
+      // Set minimum date for deadline input when modal opens
+      const taskDeadlineInput = document.getElementById('taskDeadline');
+      if (taskDeadlineInput) {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const minDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+        taskDeadlineInput.setAttribute('min', minDateTime);
+      }
     }
 
     function hideCreateTaskModal() {
@@ -946,6 +959,19 @@ function hideRemoveMemberModal() {
 
     // Add click event listeners to task cards
     document.addEventListener('DOMContentLoaded', function() {
+      // Set minimum date for deadline input
+      const taskDeadlineInput = document.getElementById('taskDeadline');
+      if (taskDeadlineInput) {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, '0');
+        const day = String(now.getDate()).padStart(2, '0');
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        const minDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+        taskDeadlineInput.setAttribute('min', minDateTime);
+      }
+      
       const taskCards = document.querySelectorAll('.task-card');
       taskCards.forEach(card => {
         card.addEventListener('click', function() {

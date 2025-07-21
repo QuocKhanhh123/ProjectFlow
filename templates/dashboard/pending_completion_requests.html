@@ -299,6 +299,7 @@
 
 <script>
 let currentRequestId = null;
+let currentProjectId = null;
 let currentAction = null;
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -341,6 +342,7 @@ function displayRequests(requests) {
     grid.innerHTML = '';
     
     requests.forEach(request => {
+        
         const card = document.createElement('div');
         card.className = 'request-card';
         
@@ -382,10 +384,10 @@ function displayRequests(requests) {
             </div>
             
             <div class="request-actions">
-                <button class="btn-approve" onclick="showReviewModal(${request.id}, 'approve')">
+                <button class="btn-approve" onclick="showReviewModal(${request.id}, ${request.project.id}, 'approve')">
                     ✅ Phê duyệt
                 </button>
-                <button class="btn-reject" onclick="showReviewModal(${request.id}, 'reject')">
+                <button class="btn-reject" onclick="showReviewModal(${request.id}, ${request.project.id}, 'reject')">
                     ❌ Từ chối
                 </button>
             </div>
@@ -438,8 +440,9 @@ function getPriorityText(priority) {
     return priorityMap[priority] || priority;
 }
 
-function showReviewModal(requestId, action) {
+function showReviewModal(requestId, projectId, action) {
     currentRequestId = requestId;
+    currentProjectId = projectId;
     currentAction = action;
     
     const modal = document.getElementById('reviewModal');
@@ -466,6 +469,7 @@ function closeReviewModal() {
     modal.style.display = 'none';
     textarea.value = '';
     currentRequestId = null;
+    currentProjectId = null;
     currentAction = null;
 }
 
@@ -480,7 +484,7 @@ document.getElementById('reviewForm').addEventListener('submit', function(e) {
     submitBtn.disabled = true;
     submitBtn.textContent = 'Đang xử lý...';
     
-    fetch(`/dashboard/projects/0/completion-requests/${currentRequestId}/review/`, {
+    fetch(`/dashboard/projects/${currentProjectId}/completion-requests/${currentRequestId}/review/`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

@@ -380,9 +380,25 @@ def create_task(request, project_id):
         if deadline:
             try:
                 from datetime import datetime
+                # Parse datetime từ frontend
                 deadline_obj = datetime.fromisoformat(deadline.replace('Z', '+00:00'))
+                
+                # Make timezone aware nếu cần
+                if deadline_obj.tzinfo is None:
+                    deadline_obj = timezone.make_aware(deadline_obj)
+                
+                # Validate deadline không được nhỏ hơn thời gian hiện tại
+                if deadline_obj <= timezone.now():
+                    return JsonResponse({
+                        'success': False,
+                        'error': 'Hạn hoàn thành phải lớn hơn thời gian hiện tại'
+                    }, status=400)
+                    
             except ValueError:
-                pass
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Định dạng thời gian không hợp lệ'
+                }, status=400)
         
         # Xử lý assignee
         assignee = None
@@ -580,7 +596,8 @@ def view_project_task_id(request, project_id, task_id):
         'task': task,
         'comments': comments,
         'user_role': user_member.role,
-        'can_edit': user_member.role in [MemberRole.OWNER, MemberRole.ADMIN]
+        'can_edit': user_member.role in [MemberRole.OWNER, MemberRole.ADMIN],
+        'now': timezone.now()
     }
     return render(request, 'dashboard/task_detail.html', context)
 
@@ -614,6 +631,7 @@ def update_task(request, project_id, task_id):
         description = data.get('description', '').strip()
         status = data.get('status', task.status)
         priority = data.get('priority', task.priority)
+        deadline = data.get('deadline')
         
         
         valid_statuses = ['TODO', 'IN_PROGRESS', 'DONE']
@@ -624,11 +642,40 @@ def update_task(request, project_id, task_id):
         if priority not in valid_priorities:
             priority = task.priority
         
+        # Xử lý deadline cho update
+        deadline_obj = task.deadline  # Keep existing deadline by default
+        if deadline is not None:  # Check for None to allow clearing deadline
+            if deadline:  # If not empty string
+                try:
+                    from datetime import datetime
+                    # Parse datetime từ frontend
+                    deadline_obj = datetime.fromisoformat(deadline.replace('Z', '+00:00'))
+                    
+                    # Make timezone aware nếu cần
+                    if deadline_obj.tzinfo is None:
+                        deadline_obj = timezone.make_aware(deadline_obj)
+                    
+                    # Validate deadline không được nhỏ hơn thời gian hiện tại
+                    if deadline_obj <= timezone.now():
+                        return JsonResponse({
+                            'success': False,
+                            'error': 'Hạn hoàn thành phải lớn hơn thời gian hiện tại'
+                        }, status=400)
+                        
+                except ValueError:
+                    return JsonResponse({
+                        'success': False,
+                        'error': 'Định dạng thời gian không hợp lệ'
+                    }, status=400)
+            else:
+                deadline_obj = None  # Clear deadline if empty string
+        
         
         task.title = title
         task.description = description
         task.status = status
         task.priority = priority
+        task.deadline = deadline_obj
         task.save()
         
         return JsonResponse({
@@ -639,6 +686,7 @@ def update_task(request, project_id, task_id):
                 'description': task.description,
                 'status': task.status,
                 'priority': task.priority,
+                'deadline': task.deadline.isoformat() if task.deadline else None,
                 'updated_at': task.updated_at.isoformat(),
                 'assignee': task.assignee.username if task.assignee else None
             }

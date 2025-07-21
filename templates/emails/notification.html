@@ -164,11 +164,11 @@
                 {% elif notification.type == 'DEADLINE_WARNING' %}
                     Cảnh báo hạn chót
                 {% elif notification.type == 'COMPLETION_APPROVED' %}
-                    Hoàn thành được duyệt
+                    Yêu cầu hoàn thành đã được duyệt
                 {% elif notification.type == 'COMPLETION_REJECTED' %}
-                    Hoàn thành bị từ chối
+                    Yêu cầu hoàn thành bị từ chối
                 {% elif notification.type == 'COMPLETION_REQUEST' %}
-                    Yêu cầu duyệt
+                    Yêu cầu duyệt hoàn thành
                 {% endif %}
             </div>
         </div>
@@ -226,7 +226,7 @@
         <div class="footer">
             <p>Bạn nhận được email này vì bạn là thành viên của ProjectFlow.</p>
             <p>
-                <a href="{{ site_url }}">Truy cập ProjectFlow</a> | 
+                <a href="{{ site_url }}/overview/">Truy cập ProjectFlow</a> | 
                 <a href="{{ site_url }}/dashboard/notifications/">Quản lý thông báo</a>
             </p>
         </div>

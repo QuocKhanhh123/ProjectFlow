@@ -789,6 +789,15 @@ body.light-mode .btn-delete:hover {
     background: #dc2626;
 }
 
+body.light-mode .btn-success {
+    background: #10b981;
+    color: #ffffff;
+}
+
+body.light-mode .btn-success:hover {
+    background: #059669;
+}
+
 /* Light mode styling cho nút xóa thành viên trong modal */
 body.light-mode .modal-content .btn-delete {
     background: #ef4444;

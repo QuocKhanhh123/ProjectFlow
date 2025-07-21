@@ -17,8 +17,15 @@
       <div class="task-info-header">
         <h1 class="task-detail-title">{{ task.title }}</h1>
         <div class="task-actions">
-          <button class="btn btn-edit" onclick="showEditTaskModal()">✏️ Sửa</button>
-          <button class="btn btn-delete" onclick="deleteTask()">🗑️ Xóa</button>
+          {% if task.assignee == user and task.status != 'DONE' %}
+            <button class="btn btn-success" onclick="showRequestCompletionModal()">
+              <i class="fa-solid fa-check-circle"></i> Yêu cầu duyệt hoàn thành
+            </button>
+          {% endif %}
+          {% if can_edit %}
+            <button class="btn btn-edit" onclick="showEditTaskModal()">✏️ Sửa</button>
+            <button class="btn btn-delete" onclick="deleteTask()">🗑️ Xóa</button>
+          {% endif %}
         </div>
       </div>
 
@@ -34,6 +41,14 @@
         <div class="task-dates">
           <div class="task-created">Tạo: {{ task.created_at|date:"d/m/Y H:i" }}</div>
           <div class="task-updated">Cập nhật: {{ task.updated_at|date:"d/m/Y H:i" }}</div>
+          {% if task.deadline %}
+            <div class="task-deadline {% if task.deadline < now and task.status != 'DONE' %}overdue{% endif %}">
+              Hạn: {{ task.deadline|date:"d/m/Y H:i" }}
+              {% if task.deadline < now and task.status != 'DONE' %}
+                <span class="overdue-label">⚠️ Quá hạn</span>
+              {% endif %}
+            </div>
+          {% endif %}
         </div>
       </div>
 
@@ -128,6 +143,36 @@
         <div class="form-actions">
           <button type="button" class="btn btn-cancel" onclick="hideEditTaskModal()">Hủy</button>
           <button type="submit" class="btn btn-save">Lưu thay đổi</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Yêu cầu duyệt hoàn thành -->
+<div id="requestCompletionModal" class="modal-overlay hidden">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Yêu cầu duyệt hoàn thành</h2>
+      <button class="modal-close" onclick="hideRequestCompletionModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <p class="modal-desc">Gửi yêu cầu xác nhận hoàn thành công việc cho quản lý dự án.</p>
+      
+      <form id="requestCompletionForm">
+        {% csrf_token %}
+        <div class="form-group">
+          <label for="completionMessage">Tin nhắn (tùy chọn)</label>
+          <textarea id="completionMessage" name="completionMessage" placeholder="Mô tả về công việc đã hoàn thành, kết quả đạt được..." rows="4"></textarea>
+        </div>
+        
+        <div class="form-actions">
+          <button type="button" class="btn btn-cancel" onclick="hideRequestCompletionModal()">
+            <i class="fa-solid fa-xmark"></i> Hủy
+          </button>
+          <button type="submit" class="btn btn-success">
+            <i class="fa-solid fa-paper-plane"></i> Gửi yêu cầu
+          </button>
         </div>
       </form>
     </div>
@@ -251,6 +296,65 @@
       showNotification('Có lỗi xảy ra khi xóa công việc', 'error');
     });
   }
+
+  // Request completion functions
+  function showRequestCompletionModal() {
+    document.getElementById('requestCompletionModal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function hideRequestCompletionModal() {
+    document.getElementById('requestCompletionModal').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+    document.getElementById('requestCompletionForm').reset();
+  }
+
+  // Handle request completion form submission
+  document.getElementById('requestCompletionForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const completionData = {
+      message: formData.get('completionMessage') || ''
+    };
+    
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Đang gửi...';
+    
+    fetch(`/dashboard/projects/{{ project.id }}/tasks/{{ task.id }}/request-completion/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken')
+      },
+      body: JSON.stringify(completionData)
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        hideRequestCompletionModal();
+        showNotification('Yêu cầu duyệt hoàn thành đã được gửi!', 'success');
+        
+        // Ẩn nút yêu cầu duyệt sau khi gửi thành công
+        const requestBtn = document.querySelector('button[onclick="showRequestCompletionModal()"]');
+        if (requestBtn) {
+          requestBtn.style.display = 'none';
+        }
+      } else {
+        showNotification(data.error || 'Có lỗi xảy ra khi gửi yêu cầu', 'error');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      showNotification('Có lỗi xảy ra khi gửi yêu cầu', 'error');
+    })
+    .finally(() => {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalText;
+    });
+  });
 
   // Helper functions
   function getCookie(name) {

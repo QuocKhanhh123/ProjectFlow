@@ -466,6 +466,25 @@
     background: #b91c1c;
 }
 
+.btn-success {
+    background: #10b981;
+    color: #ffffff;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: background-color 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-success:hover {
+    background: #059669;
+}
+
 /* Styling riêng cho nút xóa thành viên trong modal */
 .modal-content .btn-delete {
     background: #dc2626;
@@ -689,6 +708,23 @@
 .task-deadline.overdue {
     color: #ef4444;
     font-weight: 600;
+}
+
+/* Task detail deadline styling */
+.task-dates .task-deadline {
+    font-size: 0.9rem;
+    color: #3b82f6;
+    margin-top: 4px;
+}
+
+.task-dates .task-deadline.overdue {
+    color: #ef4444;
+    font-weight: 600;
+}
+
+.overdue-label {
+    font-size: 0.8rem;
+    margin-left: 8px;
 }
 
 .member-header {
