@@ -915,6 +915,7 @@ body.light-mode .no-search-results i {
 
 .user-menu {
     display: none;
+    width: 200px;
     position: absolute;
     right: 0;
     top: 48px;

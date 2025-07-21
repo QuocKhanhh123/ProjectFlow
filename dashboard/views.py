@@ -18,7 +18,7 @@ def get_user_project_access(user, project):
     Automatically creates ProjectMember record for project owner if it doesn't exist.
     """
     if project.owner == user:
-        # Create or get ProjectMember record for the owner
+        
         user_member, created = ProjectMember.objects.get_or_create(
             user=user,
             project=project,
@@ -26,7 +26,7 @@ def get_user_project_access(user, project):
         )
         return user_member
     else:
-        # Check if user is a member of the project
+        
         return ProjectMember.objects.filter(user=user, project=project).first()
 
 
@@ -34,56 +34,56 @@ def get_user_project_access(user, project):
 def view_overview(request):
     user = request.user
     
-    # Get all projects where user is owner or member
+    
     owned_projects = Project.objects.filter(owner=user)
     member_projects = ProjectMember.objects.filter(user=user).select_related('project')
     
-    # Combine all projects
+    
     all_project_ids = set()
     all_projects = []
     
-    # Add owned projects
+    
     for project in owned_projects:
         all_project_ids.add(project.id)
         all_projects.append(project)
     
-    # Add member projects
+    
     for member_project in member_projects:
         project = member_project.project
         if project.id not in all_project_ids:
             all_project_ids.add(project.id)
             all_projects.append(project)
     
-    # Project statistics
+    
     total_projects = len(all_projects)
     owned_count = owned_projects.count()
     member_count = total_projects - owned_count
     
-    # Status statistics
+    
     active_projects = len([p for p in all_projects if p.status == 'ACTIVE'])
     completed_projects = len([p for p in all_projects if p.status == 'COMPLETED'])
     on_hold_projects = len([p for p in all_projects if p.status == 'ON_HOLD'])
     
-    # Task statistics across all projects
+    
     all_tasks = Task.objects.filter(project__in=all_projects)
     total_tasks = all_tasks.count()
     todo_tasks = all_tasks.filter(status='TODO').count()
     in_progress_tasks = all_tasks.filter(status='IN_PROGRESS').count()
     done_tasks = all_tasks.filter(status='DONE').count()
     
-    # My assigned tasks
+    
     my_tasks = all_tasks.filter(assignee=user)
     my_total_tasks = my_tasks.count()
     my_todo_tasks = my_tasks.filter(status='TODO').count()
     my_in_progress_tasks = my_tasks.filter(status='IN_PROGRESS').count()
     my_done_tasks = my_tasks.filter(status='DONE').count()
     
-    # Priority statistics
+    
     high_priority_tasks = all_tasks.filter(priority='HIGH').count()
     medium_priority_tasks = all_tasks.filter(priority='MEDIUM').count()
     low_priority_tasks = all_tasks.filter(priority='LOW').count()
     
-    # Recent activity (last 7 days)
+    
     seven_days_ago = timezone.now() - timedelta(days=7)
     recent_tasks = all_tasks.filter(created_at__gte=seven_days_ago).count()
     recent_comments = Comment.objects.filter(
@@ -91,17 +91,17 @@ def view_overview(request):
         created_at__gte=seven_days_ago
     ).count()
     
-    # Team statistics
+    
     total_members = ProjectMember.objects.filter(project__in=all_projects).count()
     active_members = ProjectMember.objects.filter(
         project__in=all_projects,
         user__tasks__updated_at__gte=seven_days_ago
     ).distinct().count()
     
-    # Recent projects (last 5)
+    
     recent_projects = sorted(all_projects, key=lambda x: x.created_at, reverse=True)[:5]
     
-    # Progress calculation
+    
     project_progress = []
     for project in all_projects:
         project_tasks = Task.objects.filter(project=project)
@@ -120,7 +120,7 @@ def view_overview(request):
             'completed_tasks': completed_project_tasks
         })
     
-    # Chart data for JavaScript
+    
     chart_data = {
         'project_status': {
             'active': active_projects,
@@ -182,15 +182,15 @@ def view_projects(request):
     
     member_projects = ProjectMember.objects.filter(user=user).select_related('project')
     
-    # Combine all projects and remove duplicates
+    
     all_project_ids = set()
     projects_data = []
     
-    # Add owned projects
+    
     for project in owned_projects:
         if project.id not in all_project_ids:
             all_project_ids.add(project.id)
-            # Get user's role in this project
+            
             member_role = ProjectMember.objects.filter(user=user, project=project).first()
             user_role = member_role.role if member_role else 'OWNER'
             
@@ -200,7 +200,7 @@ def view_projects(request):
                 'is_owner': True
             })
     
-    # Add member projects
+    
     for member_project in member_projects:
         project = member_project.project
         if project.id not in all_project_ids:
@@ -211,15 +211,15 @@ def view_projects(request):
                 'is_owner': project.owner == user
             })
     
-    # Sort by created date
+    
     projects_data.sort(key=lambda x: x['project'].created_at, reverse=True)
     
-    # Calculate statistics
+    
     total_projects = len(projects_data)
     owned_projects_count = len([p for p in projects_data if p['is_owner']])
     member_projects_count = len([p for p in projects_data if not p['is_owner']])
     
-    # Status statistics
+    
     active_projects = len([p for p in projects_data if p['project'].status == 'ACTIVE'])
     completed_projects = len([p for p in projects_data if p['project'].status == 'COMPLETED'])
     on_hold_projects = len([p for p in projects_data if p['project'].status == 'ON_HOLD'])
@@ -248,7 +248,7 @@ def create_project(request):
             project.owner = request.user
             project.save()
             
-            # Automatically add owner as a member with OWNER role
+            
             ProjectMember.objects.create(
                 user=request.user,
                 project=project,
@@ -306,7 +306,7 @@ def delete_project(request, project_id):
 
 @login_required(login_url="login")
 def view_project_detail(request, project_id):
-    # Check if user has access to this project (owner or member)
+    
     project = get_object_or_404(Project, id=project_id)
     user_member = get_user_project_access(request.user, project)
     
@@ -316,7 +316,7 @@ def view_project_detail(request, project_id):
     
     tasks = Task.objects.filter(project=project).order_by('-created_at')
     
-    # Count tasks by status
+    
     todo_count = tasks.filter(status='TODO').count()
     in_progress_count = tasks.filter(status='IN_PROGRESS').count()
     done_count = tasks.filter(status='DONE').count()
@@ -338,7 +338,7 @@ def view_project_detail(request, project_id):
 @require_http_methods(["POST"])
 def create_task(request, project_id):
     try:
-        # Check if user has access to this project
+        
         project = get_object_or_404(Project, id=project_id)
         user_member = get_user_project_access(request.user, project)
         
@@ -348,10 +348,10 @@ def create_task(request, project_id):
                 'error': 'Bạn không có quyền truy cập dự án này'
             }, status=403)
         
-        # Parse JSON data from request body
+        
         data = json.loads(request.body)
         
-        # Validate required fields
+        
         title = data.get('title', '').strip()
         if not title:
             return JsonResponse({
@@ -363,7 +363,7 @@ def create_task(request, project_id):
         status = data.get('status', 'TODO')
         priority = data.get('priority', 'MEDIUM')
         
-        # Validate status and priority choices
+        
         valid_statuses = ['TODO', 'IN_PROGRESS', 'DONE']
         valid_priorities = ['LOW', 'MEDIUM', 'HIGH']
         
@@ -372,14 +372,14 @@ def create_task(request, project_id):
         if priority not in valid_priorities:
             priority = 'MEDIUM'
         
-        # Create the task
+        
         task = Task.objects.create(
             title=title,
             description=description,
             status=status,
             priority=priority,
             project=project,
-            assignee=request.user  # Assign to current user by default
+            assignee=request.user  
         )
         
         return JsonResponse({
@@ -414,7 +414,7 @@ def view_project_id(request):
 
 @login_required(login_url="login")
 def view_project_members(request, project_id):
-    # Check if user has access to this project and is owner or admin
+    
     project = get_object_or_404(Project, id=project_id)
     user_member = get_user_project_access(request.user, project)
     
@@ -426,28 +426,28 @@ def view_project_members(request, project_id):
         messages.error(request, 'Bạn không có quyền quản lý thành viên dự án này.')
         return redirect('view_project_detail', project_id=project_id)
     
-    # Get all members with additional info
+    
     members = ProjectMember.objects.filter(project=project).select_related('user').order_by('-joined_at')
     
-    # Get member statistics with more details
+    
     member_stats = []
     for member in members:
         try:
-            # Get tasks assigned to this member
+            
             assigned_tasks = Task.objects.filter(project=project, assignee=member.user).count()
             completed_tasks = Task.objects.filter(project=project, assignee=member.user, status='DONE').count()
             
-            # Get comments by this member
+            
             comments_count = Comment.objects.filter(user=member.user, task__project=project).count()
             
-            # Check if member is active (last activity within 30 days)
+            
             thirty_days_ago = timezone.now() - timedelta(days=30)
             is_active = (
                 Task.objects.filter(assignee=member.user, updated_at__gte=thirty_days_ago, project=project).exists() or
                 Comment.objects.filter(user=member.user, created_at__gte=thirty_days_ago, task__project=project).exists()
             )
             
-            # Get member's last activity
+            
             last_task_activity = Task.objects.filter(assignee=member.user, project=project).order_by('-updated_at').first()
             last_comment_activity = Comment.objects.filter(user=member.user, task__project=project).order_by('-created_at').first()
             
@@ -474,7 +474,7 @@ def view_project_members(request, project_id):
             member_stats.append(member_stat)
             
         except Exception as e:
-            # Add a basic stat even if there's an error
+            
             member_stats.append({
                 'member': member,
                 'assigned_tasks': 0,
@@ -485,26 +485,26 @@ def view_project_members(request, project_id):
                 'completion_rate': 0
             })
     
-    # Get pending invitations
+    
     pending_invitations = ProjectInvitation.objects.filter(
         project=project, 
         status=InvitationStatus.PENDING
     ).order_by('-sent_at')
     
-    # Overall statistics
+    
     total_members = members.count()
     admin_count = members.filter(role__in=[MemberRole.OWNER, MemberRole.ADMIN]).count()
     pending_count = pending_invitations.count()
     
-    # Active members (those who have tasks or comments in last 30 days)
+    
     active_members = sum(1 for stat in member_stats if stat['is_active'])
     
-    # Project task statistics
+    
     total_project_tasks = Task.objects.filter(project=project).count()
     completed_project_tasks = Task.objects.filter(project=project, status='DONE').count()
     project_progress = round((completed_project_tasks / total_project_tasks * 100) if total_project_tasks > 0 else 0, 1)
     
-    # Recent project activity
+    
     recent_tasks = Task.objects.filter(project=project).order_by('-created_at')[:5]
     recent_comments = Comment.objects.filter(task__project=project).select_related('user', 'task').order_by('-created_at')[:5]
     
@@ -529,7 +529,7 @@ def view_project_members(request, project_id):
 
 @login_required(login_url="login")
 def view_project_task_id(request, project_id, task_id):
-    # Check if user has access to this project (owner or member)
+    
     project = get_object_or_404(Project, id=project_id)
     user_member = get_user_project_access(request.user, project)
     
@@ -553,7 +553,7 @@ def view_project_task_id(request, project_id, task_id):
 @require_http_methods(["PUT"])
 def update_task(request, project_id, task_id):
     try:
-        # Check if user has access to this project
+        
         project = get_object_or_404(Project, id=project_id)
         user_member = get_user_project_access(request.user, project)
         
@@ -565,10 +565,10 @@ def update_task(request, project_id, task_id):
         
         task = get_object_or_404(Task, id=task_id, project=project)
         
-        # Parse JSON data from request body
+        
         data = json.loads(request.body)
         
-        # Validate required fields
+        
         title = data.get('title', '').strip()
         if not title:
             return JsonResponse({
@@ -580,7 +580,7 @@ def update_task(request, project_id, task_id):
         status = data.get('status', task.status)
         priority = data.get('priority', task.priority)
         
-        # Validate status and priority choices
+        
         valid_statuses = ['TODO', 'IN_PROGRESS', 'DONE']
         valid_priorities = ['LOW', 'MEDIUM', 'HIGH']
         
@@ -589,7 +589,7 @@ def update_task(request, project_id, task_id):
         if priority not in valid_priorities:
             priority = task.priority
         
-        # Update the task
+        
         task.title = title
         task.description = description
         task.status = status
@@ -624,7 +624,7 @@ def update_task(request, project_id, task_id):
 @require_http_methods(["POST"])
 def create_comment(request, project_id, task_id):
     try:
-        # Check if user has access to this project
+        
         project = get_object_or_404(Project, id=project_id)
         user_member = get_user_project_access(request.user, project)
         
@@ -636,10 +636,10 @@ def create_comment(request, project_id, task_id):
         
         task = get_object_or_404(Task, id=task_id, project=project)
         
-        # Parse JSON data from request body
+        
         data = json.loads(request.body)
         
-        # Validate required fields
+        
         content = data.get('content', '').strip()
         if not content:
             return JsonResponse({
@@ -647,7 +647,7 @@ def create_comment(request, project_id, task_id):
                 'error': 'Nội dung comment là bắt buộc'
             }, status=400)
         
-        # Create the comment
+        
         comment = Comment.objects.create(
             content=content,
             task=task,
@@ -682,7 +682,7 @@ def create_comment(request, project_id, task_id):
 @require_http_methods(["DELETE"])
 def delete_task(request, project_id, task_id):
     try:
-        # Check if user has access to this project
+        
         project = get_object_or_404(Project, id=project_id)
         user_member = get_user_project_access(request.user, project)
         
@@ -692,7 +692,7 @@ def delete_task(request, project_id, task_id):
                 'error': 'Bạn không có quyền truy cập dự án này'
             }, status=403)
         
-        # Only owner and admin can delete tasks
+        
         if user_member.role not in [MemberRole.OWNER, MemberRole.ADMIN]:
             return JsonResponse({
                 'success': False,
@@ -718,14 +718,14 @@ def delete_task(request, project_id, task_id):
 def view_profile(request):
     user = request.user
     
-    # Get user statistics
+    
     owned_projects = Project.objects.filter(owner=user).count()
     member_projects = ProjectMember.objects.filter(user=user).count()
     assigned_tasks = Task.objects.filter(assignee=user).count()
     completed_tasks = Task.objects.filter(assignee=user, status='DONE').count()
     comments_count = Comment.objects.filter(user=user).count()
     
-    # Get recent activity
+    
     recent_tasks = Task.objects.filter(assignee=user).order_by('-updated_at')[:5]
     recent_comments = Comment.objects.filter(user=user).order_by('-created_at')[:5]
     
@@ -756,7 +756,7 @@ def view_frame(request):
 @require_http_methods(["POST"])
 def invite_member(request, project_id):
     try:
-        # Check if user has access to this project and is owner or admin
+        
         project = get_object_or_404(Project, id=project_id)
         user_member = get_user_project_access(request.user, project)
         
@@ -772,7 +772,7 @@ def invite_member(request, project_id):
                 'error': 'Bạn không có quyền thêm thành viên vào dự án này'
             }, status=403)
         
-        # Parse JSON data
+        
         data = json.loads(request.body)
         email = data.get('email', '').strip().lower()
         role = data.get('role', MemberRole.MEMBER)
@@ -783,11 +783,11 @@ def invite_member(request, project_id):
                 'error': 'Email là bắt buộc'
             }, status=400)
         
-        # Validate role
+        
         if role not in [choice[0] for choice in MemberRole.choices]:
             role = MemberRole.MEMBER
         
-        # Check if user exists - fix for multiple users with same email
+        
         try:
             user = User.objects.filter(email=email).first()
             if not user:
@@ -801,14 +801,14 @@ def invite_member(request, project_id):
                 'error': f'Lỗi khi tìm người dùng: {str(e)}'
             }, status=500)
         
-        # Check if user is already a member
+        
         if ProjectMember.objects.filter(user=user, project=project).exists():
             return JsonResponse({
                 'success': False,
                 'error': 'Người dùng đã là thành viên của dự án'
             }, status=400)
         
-        # Add user directly to project (no invitation needed)
+        
         member = ProjectMember.objects.create(
             user=user,
             project=project,
@@ -849,7 +849,7 @@ def accept_invitation(request, invitation_id):
             status=InvitationStatus.PENDING
         )
         
-        # Check if invitation is expired
+        
         if invitation.expires_at < timezone.now():
             invitation.status = InvitationStatus.EXPIRED
             invitation.save()
@@ -858,18 +858,18 @@ def accept_invitation(request, invitation_id):
                 'error': 'Lời mời đã hết hạn'
             }, status=400)
         
-        # Check if user is already a member
+        
         if ProjectMember.objects.filter(user=request.user, project=invitation.project).exists():
             return JsonResponse({
                 'success': False,
                 'error': 'Bạn đã là thành viên của dự án'
             }, status=400)
         
-        # Accept invitation
+        
         invitation.status = InvitationStatus.ACCEPTED
         invitation.save()
         
-        # Add user as member
+        
         ProjectMember.objects.create(
             user=request.user,
             project=invitation.project,
@@ -916,7 +916,7 @@ def decline_invitation(request, invitation_id):
 @require_http_methods(["POST"])
 def remove_member(request, project_id, member_id):
     try:
-        # Check if user has access to this project and is owner or admin
+        
         project = get_object_or_404(Project, id=project_id)
         user_member = get_user_project_access(request.user, project)
         
@@ -934,14 +934,14 @@ def remove_member(request, project_id, member_id):
         
         member = get_object_or_404(ProjectMember, id=member_id, project=project)
         
-        # Cannot remove the owner
+        
         if member.role == MemberRole.OWNER:
             return JsonResponse({
                 'success': False,
                 'error': 'Không thể xóa chủ sở hữu dự án'
             }, status=400)
         
-        # Store member info before deletion
+        
         member_info = {
             'username': member.user.username,
             'email': member.user.email
@@ -964,7 +964,7 @@ def remove_member(request, project_id, member_id):
 @require_http_methods(["POST"])
 def update_member_role(request, project_id, member_id):
     try:
-        # Check if user has access to this project and is owner or admin
+        
         project = get_object_or_404(Project, id=project_id)
         user_member = get_user_project_access(request.user, project)
         
@@ -982,18 +982,18 @@ def update_member_role(request, project_id, member_id):
         
         member = get_object_or_404(ProjectMember, id=member_id, project=project)
         
-        # Cannot change owner's role
+        
         if member.role == MemberRole.OWNER:
             return JsonResponse({
                 'success': False,
                 'error': 'Không thể thay đổi vai trò của chủ sở hữu dự án'
             }, status=400)
         
-        # Parse JSON data
+        
         data = json.loads(request.body)
         new_role = data.get('role', member.role)
         
-        # Validate role (cannot assign OWNER role)
+        
         if new_role == MemberRole.OWNER:
             return JsonResponse({
                 'success': False,
@@ -1060,7 +1060,7 @@ def view_all_members(request):
     """View to show all projects where user is a member"""
     user = request.user
     
-    # Get all projects where user is a member (including as owner)
+    
     member_projects = ProjectMember.objects.filter(user=user).select_related('project').order_by('-joined_at')
     
     projects_data = []
@@ -1076,7 +1076,7 @@ def view_all_members(request):
             status=InvitationStatus.PENDING
         ).count()
         
-        # Count roles
+        
         if member_project.role == MemberRole.OWNER:
             owner_count += 1
         elif member_project.role == MemberRole.ADMIN:
@@ -1106,19 +1106,19 @@ def view_all_members(request):
 @require_http_methods(["POST"])
 def update_profile(request):
     try:
-        # Parse JSON data
+        
         data = json.loads(request.body)
         
-        # Get current user
+        
         user = request.user
         
-        # Get new values
+        
         new_username = data.get('username', user.username)
         new_email = data.get('email', user.email)
         new_first_name = data.get('first_name', user.first_name)
         new_last_name = data.get('last_name', user.last_name)
         
-        # Validate email uniqueness only if email is changed
+        
         if new_email != user.email:
             if User.objects.filter(email=new_email).exists():
                 return JsonResponse({
@@ -1126,7 +1126,7 @@ def update_profile(request):
                     'error': 'Email này đã được sử dụng bởi người khác'
                 }, status=400)
         
-        # Validate username uniqueness only if username is changed
+        
         if new_username != user.username:
             if User.objects.filter(username=new_username).exists():
                 return JsonResponse({
@@ -1134,7 +1134,7 @@ def update_profile(request):
                     'error': 'Tên đăng nhập này đã được sử dụng bởi người khác'
                 }, status=400)
         
-        # Update user information
+        
         user.username = new_username
         user.email = new_email
         user.first_name = new_first_name
@@ -1167,35 +1167,35 @@ def update_profile(request):
 @require_http_methods(["POST"])
 def change_password(request):
     try:
-        # Parse JSON data
+        
         data = json.loads(request.body)
         
         old_password = data.get('old_password', '')
         new_password1 = data.get('new_password1', '')
         new_password2 = data.get('new_password2', '')
         
-        # Validate old password
+        
         if not request.user.check_password(old_password):
             return JsonResponse({
                 'success': False,
                 'error': 'Mật khẩu hiện tại không đúng'
             }, status=400)
         
-        # Validate new password
+        
         if len(new_password1) < 4:
             return JsonResponse({
                 'success': False,
                 'error': 'Mật khẩu mới phải có ít nhất 4 ký tự'
             }, status=400)
         
-        # Validate password confirmation
+        
         if new_password1 != new_password2:
             return JsonResponse({
                 'success': False,
                 'error': 'Mật khẩu mới và xác nhận mật khẩu không khớp'
             }, status=400)
         
-        # Update password
+        
         request.user.set_password(new_password1)
         request.user.save()
         
@@ -1230,20 +1230,20 @@ def search_view(request):
     
     user = request.user
     
-    # Tìm kiếm dự án mà user có quyền truy cập
+    
     user_projects = []
     
-    # Dự án sở hữu
+    
     owned_projects = Project.objects.filter(owner=user)
     user_projects.extend(owned_projects)
     
-    # Dự án tham gia
+    
     member_projects = ProjectMember.objects.filter(user=user).select_related('project')
     for member_project in member_projects:
         if member_project.project not in user_projects:
             user_projects.append(member_project.project)
     
-    # Lọc dự án theo từ khóa
+    
     project_ids = [p.id for p in user_projects]
     projects = Project.objects.filter(
         id__in=project_ids
@@ -1251,14 +1251,14 @@ def search_view(request):
         Q(name__icontains=query) | Q(description__icontains=query)
     ).order_by('-created_at')[:10]
     
-    # Tìm kiếm công việc trong các dự án mà user có quyền truy cập
+    
     tasks = Task.objects.filter(
         project__id__in=project_ids
     ).filter(
         Q(title__icontains=query) | Q(description__icontains=query)
     ).select_related('project').order_by('-created_at')[:10]
     
-    # Chuẩn bị dữ liệu trả về
+    
     projects_data = []
     for project in projects:
         projects_data.append({
