@@ -97,7 +97,7 @@
         }
         
         .meta-value {
-            font-weight: 600;
+            font-weight: 520;
             color: #1e293b;
         }
         
@@ -185,27 +185,27 @@
         <div class="notification-meta">
             {% if notification.task %}
             <div class="meta-item">
-                <span class="meta-label">Công việc</span>
+                <span class="meta-label">Công việc </span>
                 <span class="meta-value">{{ notification.task.title }}</span>
             </div>
             {% endif %}
             
             {% if notification.project %}
             <div class="meta-item">
-                <span class="meta-label">Dự án</span>
+                <span class="meta-label">Dự án </span>
                 <span class="meta-value">{{ notification.project.name }}</span>
             </div>
             {% endif %}
             
             {% if notification.sender %}
             <div class="meta-item">
-                <span class="meta-label">Từ</span>
+                <span class="meta-label">Từ </span>
                 <span class="meta-value">{{ notification.sender.username }}</span>
             </div>
             {% endif %}
             
             <div class="meta-item">
-                <span class="meta-label">Thời gian</span>
+                <span class="meta-label">Thời gian </span>
                 <span class="meta-value">{{ notification.created_at|date:"d/m/Y H:i" }}</span>
             </div>
         </div>
