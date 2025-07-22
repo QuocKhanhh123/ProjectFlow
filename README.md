@@ -102,35 +102,7 @@ python manage.py runserver
 7. **Truy cập ứng dụng**
 - Trang chủ: http://127.0.0.1:8000/
 - Admin: http://127.0.0.1:8000/admin/
-- Dashboard: http://127.0.0.1:8000/dashboard/
-
-## 📋 Database Schema
-
-### Models chính:
-
-- **User**: Mở rộng từ AbstractUser với thêm last_active, created_at, updated_at
-- **Project**: Quản lý thông tin dự án (name, description, status, owner)
-- **ProjectMember**: Quản lý thành viên và vai trò trong dự án
-- **ProjectInvitation**: Quản lý lời mời tham gia dự án
-- **Task**: Quản lý công việc (title, description, status, priority, assignee)
-- **Comment**: Bình luận trên công việc
-
-## 🎯 Các tính năng đang phát triển
-
-- [ ] Dashboard analytics và báo cáo
-- [ ] Notifications realtime
-- [ ] File upload cho tasks
-- [ ] Calendar view cho deadlines
-- [ ] API REST cho mobile app
-- [ ] Kanban board view
-- [ ] Time tracking
-- [ ] Project templates
-
-## 🤝 Đóng góp
-
-1. Fork dự án
-2. Tạo feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit changes (`git commit -m 'Add some AmazingFeature'`)
+- Dashboard: http://127.0.0.1:8000/overview/
 4. Push to branch (`git push origin feature/AmazingFeature`)
 5. Tạo Pull Request
 
