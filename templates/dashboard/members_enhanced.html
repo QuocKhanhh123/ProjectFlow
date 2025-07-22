@@ -77,7 +77,7 @@
                 </div>
             </div>
             <div class="progress-bar">
-                <div class="progress-fill" style="width: {{ project_progress }}%"></div>
+                <div class="progress-fill" style="width: {{ project_progress|default:0 }}%"></div>
             </div>
         </div>
     </div>
@@ -154,7 +154,7 @@
             <div class="member-progress">
                 <div class="progress-label">Tiến độ cá nhân</div>
                 <div class="progress-bar small">
-                    <div class="progress-fill" style="width: {{ stat.completion_rate }}%"></div>
+                    <div class="progress-fill" style="width: {{ stat.completion_rate|default:0 }}%"></div>
                 </div>
             </div>
             
@@ -303,7 +303,7 @@
 
 <script>
 let currentMemberId = null;
-const projectId = {{ project.id }};
+const projectId = parseInt('{{ project.id|default:0 }}');
 
 function showAddMemberModal() {
     document.getElementById('addMemberModal').style.display = 'block';

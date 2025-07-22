@@ -176,8 +176,11 @@
             <div class="member-info">
               <div>
                 <strong>{{ member.user.username }}</strong>
-                <span class="role-badge">
-                  {% if member.role == 'OWNER' %}Chủ sở hữu{% elif member.role == 'ADMIN' %}Quản trị viên{% else %}Thành viên{% endif %}
+                <span class="role-badge role-{{ member.role|lower }}">
+                  {% if member.role == 'OWNER' %}Chủ sở hữu
+                  {% elif member.role == 'ADMIN' %}Quản trị viên
+                  {% elif member.role == 'LEADER' %}Trưởng nhóm
+                  {% else %}Thành viên{% endif %}
                 </span>
               </div>
               <div class="email">{{ member.user.email }}</div>
@@ -352,8 +355,9 @@
           <div class="form-group">
             <label for="memberRole">Vai trò</label>
             <select id="memberRole" name="role">
-              <option value="MEMBER">Thành viên</option>
               <option value="ADMIN">Quản trị viên</option>
+              <option value="LEADER">Trưởng nhóm</option>
+              <option value="MEMBER">Thành viên</option>
             </select>
           </div>
           
@@ -381,8 +385,9 @@
           <div class="form-group">
             <label for="newRole">Vai trò mới</label>
             <select id="newRole" name="role">
-              <option value="MEMBER">Thành viên</option>
               <option value="ADMIN">Quản trị viên</option>
+              <option value="LEADER">Trưởng nhóm</option>
+              <option value="MEMBER">Thành viên</option>
             </select>
           </div>
           
@@ -635,7 +640,8 @@ function hideRemoveMemberModal() {
       
       const formData = new FormData(this);
       const newRole = formData.get('role');
-      const roleText = newRole === 'ADMIN' ? 'Quản trị viên' : 'Thành viên';
+              const roleText = newRole === 'ADMIN' ? 'Quản trị viên' : 
+                        newRole === 'LEADER' ? 'Trưởng nhóm' : 'Thành viên';
       
       fetch(`/dashboard/projects/{{ project.id }}/members/${currentMemberId}/update-role/`, {
         method: 'POST',
@@ -656,6 +662,7 @@ function hideRemoveMemberModal() {
           if (memberItem) {
             const roleBadge = memberItem.querySelector('.role-badge');
             roleBadge.textContent = roleText;
+            roleBadge.className = `role-badge role-${newRole.toLowerCase()}`;
             
             // Update button
             const roleButton = memberItem.querySelector('.btn-outline');
@@ -781,14 +788,15 @@ function hideRemoveMemberModal() {
       memberItem.setAttribute('data-member-id', member.id);
       
       const joinedDate = new Date(member.joined_at).toLocaleDateString('vi-VN');
-      const roleText = member.role === 'ADMIN' ? 'Quản trị viên' : 'Thành viên';
+              const roleText = member.role === 'ADMIN' ? 'Quản trị viên' : 
+                        member.role === 'LEADER' ? 'Trưởng nhóm' : 'Thành viên';
       
               memberItem.innerHTML = `
           <div class="avatar"></div>
           <div class="member-info">
             <div>
               <strong>${member.username}</strong>
-              <span class="role-badge">${roleText}</span>
+              <span class="role-badge role-${member.role.toLowerCase()}">${roleText}</span>
             </div>
             <div class="email">${member.email}</div>
             <div class="joined-date">Tham gia: ${joinedDate}</div>
@@ -1060,6 +1068,52 @@ function hideRemoveMemberModal() {
       
       .btn-danger:hover {
         background: #dc2626;
+      }
+      
+      /* Role Badge Colors */
+      .role-badge {
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        margin-left: 8px;
+      }
+      
+      .role-owner {
+        background: #7c3aed;
+        color: white;
+      }
+      
+      .role-admin {
+        background: #dc2626;
+        color: white;
+      }
+      
+      .role-leader {
+        background: #f59e0b;
+        color: white;
+      }
+      
+      .role-member {
+        background: #10b981;
+        color: white;
+      }
+      
+      /* Light mode role colors */
+      body.light-mode .role-owner {
+        background: #8b5cf6;
+      }
+      
+      body.light-mode .role-admin {
+        background: #ef4444;
+      }
+      
+      body.light-mode .role-leader {
+        background: #f59e0b;
+      }
+      
+      body.light-mode .role-member {
+        background: #059669;
       }
     `;
     document.head.appendChild(style);

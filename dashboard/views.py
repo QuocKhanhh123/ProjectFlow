@@ -322,7 +322,15 @@ def view_project_detail(request, project_id):
     in_progress_count = tasks.filter(status='IN_PROGRESS').count()
     done_count = tasks.filter(status='DONE').count()
     
+    # Sắp xếp members theo thứ tự role: OWNER -> ADMIN -> LEADER -> MEMBER
+    role_order = {
+        'OWNER': 1,
+        'ADMIN': 2, 
+        'LEADER': 3,
+        'MEMBER': 4
+    }
     members = project.members.select_related('user').all()
+    members = sorted(members, key=lambda m: role_order.get(m.role, 5))
     context = {
         'project': project,
         'tasks': tasks,

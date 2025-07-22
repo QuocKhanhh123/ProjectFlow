@@ -1225,6 +1225,27 @@
     gap: 24px;
     color: #9ca3af;
     font-size: 0.9rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.task-created,
+.task-updated,
+.task-deadline {
+    white-space: nowrap;
+    padding: 4px 8px;
+    background: rgba(55, 65, 81, 0.5);
+    border-radius: 6px;
+    border-left: 3px solid #3b82f6;
+}
+
+.task-deadline {
+    border-left-color: #f59e0b;
+}
+
+.task-deadline.overdue {
+    border-left-color: #ef4444;
+    background: rgba(239, 68, 68, 0.1);
 }
 
 .task-description,
@@ -1431,8 +1452,8 @@
     }
     
     .task-dates {
-        flex-direction: column;
-        gap: 8px;
+        flex-wrap: wrap;
+        gap: 12px;
     }
     
     .comment-header {
@@ -1440,4 +1461,17 @@
         align-items: flex-start;
         gap: 4px;
     }
+}
+
+/* Light Mode Styles */
+body.light-mode .task-created,
+body.light-mode .task-updated,
+body.light-mode .task-deadline {
+    background: rgba(243, 244, 246, 0.8);
+    color: #374151;
+}
+
+body.light-mode .task-deadline.overdue {
+    background: rgba(254, 226, 226, 0.8);
+    color: #dc2626;
 }
